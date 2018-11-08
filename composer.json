@@ -1,0 +1,32 @@
+{
+    "name": "dotfiles/monorepo",
+    "description": "Monorepo tools using splitsh-lite",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Anthonius Munthi",
+            "homepage": "http://itstoni.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "symfony/finder": "^3.4 | ^4.1",
+        "symfony/console": "^3.4 | ^4.1",
+        "symfony/process": "^3.4 | ^4.1",
+        "dotfiles/splitsh-lite": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dotfiles\\Monorepo\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Test\\Dotfiles\\Monorepo\\": "tests/"
+        }
+    }
+}
