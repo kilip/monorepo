@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the monorepo package.
+ *
+ *     (c) Anthonius Munthi
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 $header = <<<'EOF'
 This file is part of the monorepo package.
 
@@ -16,14 +25,13 @@ if (!file_exists(__DIR__.'/src')) {
 return PhpCsFixer\Config::create()
     ->setRules(array(
         '@Symfony' => true,
-        '@Symfony:risky' => true,
+        '@Symfony:risky' => false,
         '@PHPUnit60Migration:risky' => true,
         'php_unit_no_expectation_annotation' => false, // part of `PHPUnitXYMigration:risky` ruleset, to be enabled when PHPUnit 4.x support will be dropped, as we don't want to rewrite exceptions handling twice
         'array_syntax' => array('syntax' => 'long'),
         'protected_to_private' => false,
         '@PSR1' => true,
         '@PSR2' => true,
-        '@PHP71Migration' => true,
         'ordered_imports' => array('sortAlgorithm' => 'alpha'),
         'header_comment' => array('header' => $header),
         'heredoc_to_nowdoc' => true,
@@ -47,6 +55,5 @@ return PhpCsFixer\Config::create()
                 'Spec',
                 'fixtures',
             ))
-            ->notName('Constant.php')
     )
 ;
