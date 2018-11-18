@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Dotfiles\Monorepo;
+namespace Monorepo;
 
-use Dotfiles\Monorepo\Command\AbstractCommand;
-use Dotfiles\Monorepo\Command\SplitCommand;
+use Monorepo\Command\AbstractCommand;
+use Monorepo\Command\SplitCommand;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

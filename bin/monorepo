@@ -19,7 +19,6 @@ $files = array(
 foreach ($files as $file) {
     if (file_exists($file)) {
         define('MONOREPO_COMPOSER_INSTALL', $file);
-
         break;
     }
 }
@@ -40,7 +39,7 @@ if (!defined('MONOREPO_COMPOSER_INSTALL')) {
 include MONOREPO_COMPOSER_INSTALL;
 
 try {
-    $app = new \Dotfiles\Monorepo\Application();
+    $app = new \Monorepo\Application();
     $app->run();
 } catch (\Exception $e) {
     exit(1);

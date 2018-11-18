@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Dotfiles\Monorepo\Command;
+namespace Monorepo\Command;
 
 use Symfony\Component\Console\Command\Command;
 

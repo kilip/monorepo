@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Dotfiles\Monorepo\Test;
+namespace Monorepo\Test;
 
-use Dotfiles\Monorepo\Application;
-use Dotfiles\Monorepo\Command\AbstractCommand;
+use Monorepo\Application;
+use Monorepo\Command\AbstractCommand;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
