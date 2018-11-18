@@ -25,7 +25,7 @@ class AbstractCommand extends Command
     /**
      * @return bool
      */
-    public function dryRun(): bool
+    public function dryRun()
     {
         return $this->dryRun;
     }
@@ -35,7 +35,7 @@ class AbstractCommand extends Command
      *
      * @return AbstractCommand
      */
-    public function setDryRun(bool $dryRun): self
+    public function setDryRun($dryRun)
     {
         $this->dryRun = $dryRun;
 

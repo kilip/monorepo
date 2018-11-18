@@ -84,11 +84,11 @@ EOC;
             __DIR__.'/../../../../bin',
         );
         $execFinder = new ExecutableFinder();
-        $file = $execFinder->find('splitsh-lite', null, $dirs);
+        $file = $execFinder->find('splitsh', null, $dirs);
 
         if (!is_file($file)) {
             throw new CommandException(
-                sprintf('Can\'t find "splitsh-lite" executable file.')
+                sprintf('Can\'t find "splitsh" executable file.')
             );
         }
         $this->splitshLitePath = realpath($file);
