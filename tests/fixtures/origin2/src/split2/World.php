@@ -9,13 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Monorepo\Exception;
+namespace origin1\hello;
 
-/**
- * Class CommandException.
- *
- * @author Anthonius Munthi <https://itstoni.com>
- */
-class CommandException extends \Exception
+class World
 {
 }

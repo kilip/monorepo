@@ -38,9 +38,19 @@ if (!defined('MONOREPO_COMPOSER_INSTALL')) {
 
 include MONOREPO_COMPOSER_INSTALL;
 
+use Monorepo\ApplicationFactory;
+
 try {
-    $app = new \Monorepo\Application();
-    $app->run();
+    /* @var \Monorepo\Console\Application $app */
+    $factory    = new ApplicationFactory();
+    $container  = $factory->boot()->getContainer();
+    $input      = $container->get('monorepo.input');
+    $output     = $container->get('monorepo.output');
+    $app        = $factory->getContainer()->get('monorepo.app');
+
+    exit($app->run($input,$output));
+
 } catch (\Exception $e) {
+    echo $e->getMessage();
     exit(1);
 }

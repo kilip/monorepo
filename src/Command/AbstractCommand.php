@@ -11,34 +11,8 @@
 
 namespace Monorepo\Command;
 
-use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Command\Command as BaseCommand;
 
-/**
- * Base class for monorepo command.
- *
- * @author Anthonius Munthi <me@itstoni.com>
- */
-class AbstractCommand extends Command
+class AbstractCommand extends BaseCommand
 {
-    protected $dryRun = false;
-
-    /**
-     * @return bool
-     */
-    public function dryRun()
-    {
-        return $this->dryRun;
-    }
-
-    /**
-     * @param bool $dryRun
-     *
-     * @return AbstractCommand
-     */
-    public function setDryRun($dryRun)
-    {
-        $this->dryRun = $dryRun;
-
-        return $this;
-    }
 }

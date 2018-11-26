@@ -16,6 +16,9 @@
     <filter>
         <whitelist>
             <directory>./src</directory>
+            <exclude>
+                <directory>./src/Test</directory>
+            </exclude>
         </whitelist>
     </filter>
 

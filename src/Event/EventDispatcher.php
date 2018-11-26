@@ -9,13 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Monorepo\Exception;
+namespace Monorepo\Event;
+
+use Symfony\Component\EventDispatcher\EventDispatcher as BaseEventDispatcher;
 
 /**
- * Class CommandException.
+ * Class EventDispatcher.
  *
  * @author Anthonius Munthi <https://itstoni.com>
  */
-class CommandException extends \Exception
+class EventDispatcher extends BaseEventDispatcher
 {
 }

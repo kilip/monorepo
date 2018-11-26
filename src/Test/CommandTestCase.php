@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the monorepo package.
  *
@@ -12,18 +14,15 @@
 namespace Monorepo\Test;
 
 use Monorepo\Application;
-use Monorepo\Command\AbstractCommand;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
 class CommandTestCase extends TestCase
 {
     /**
-     * @param string|AbstractCommand $command
-     *
      * @return ApplicationTester
      */
-    final public function getCommandTester($command)
+    final public function getCommandTester()
     {
         $app = new Application();
         $app->setAutoExit(false);
