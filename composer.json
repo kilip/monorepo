@@ -39,5 +39,9 @@
         "psr-4": {
             "MonorepoTest\\": "tests/"
         }
+    },
+    "scripts": {
+        "coverage": "./vendor/bin/phpunit --coverage-html=build/coverage/html --coverage-xml=build/coverage/xml --coverage-clover=build/coverage/clover.xml --colors=always",
+        "test": "./vendor/bin/phpunit --colors=always"
     }
 }

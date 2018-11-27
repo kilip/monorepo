@@ -11,36 +11,37 @@
 
 namespace Monorepo\Config;
 
-use Monorepo\Config\Project;
 use Monorepo\Console\Logger;
 
 class Config
 {
     /**
+     * Project lists.
+     *
      * @var Project[]
      */
     private $config;
+
+    /**
+     * Json config file to use.
+     *
+     * @var string
+     */
     private $configFile;
-
-    /**
-     * @var array
-     */
-    private $errors;
-
-    /**
-     * @var bool
-     */
-    private $hasError;
 
     /**
      * @var Logger
      */
     private $logger;
 
+    /**
+     * Config constructor.
+     *
+     * @param Logger $logger
+     */
     public function __construct(Logger $logger)
     {
         $this->logger = $logger;
-        $this->hasError = false;
     }
 
     /**
@@ -51,7 +52,7 @@ class Config
     public function getProject($name)
     {
         if (!isset($this->config[$name])) {
-            throw new \InvalidArgumentException(sprintf('Project "%s" not exist.'));
+            throw new \InvalidArgumentException(sprintf('Project "%s" not exist.', $name));
         }
 
         return $this->config[$name];
@@ -65,18 +66,30 @@ class Config
         return $this->config;
     }
 
-    public function setConfigFile($file)
-    {
-        $this->parse($file);
-        $this->configFile = $file;
-    }
-
     /**
-     * @param $file
+     * @param string Json format contents
      *
      * @throws \InvalidArgumentException if file not exists or unreadable
      */
-    private function parse($file)
+    public function parse($contents)
+    {
+        $json = json_decode($contents, true);
+        if (json_last_error()) {
+            throw new \InvalidArgumentException(json_last_error_msg());
+        }
+
+        $config = array();
+        foreach ($json as $name => $value) {
+            $config[$name] = new Project($this->logger, $name, $value);
+        }
+
+        $this->config = $config;
+    }
+
+    /**
+     * @param string $file
+     */
+    public function parseFile($file)
     {
         if (!is_file($file) || !is_readable($file)) {
             throw new \InvalidArgumentException(sprintf(
@@ -86,23 +99,15 @@ class Config
         }
 
         $contents = file_get_contents($file);
-        $json = json_decode($contents, true);
-        if (json_last_error()) {
+
+        try {
+            $this->parse($contents);
+        } catch (\Exception $e) {
             throw new \InvalidArgumentException(
-                sprintf('Error reading config from "%s". Json error: "%s"', $file, json_last_error_msg())
+                sprintf('Error reading config from "%s". Error message: "%s"', $file, $e->getMessage())
             );
         }
 
-        $config = array();
-        foreach ($json as $name => $value) {
-            $config[$name] = new Project($this->logger, $name, $value);
-        }
-
-        if ($this->logger->hasErrored()) {
-            throw new \InvalidArgumentException(
-                sprintf('Can not parse config file "%s". Please check your configuration file again.', $file)
-            );
-        }
-        $this->config = $config;
+        $this->configFile = $file;
     }
 }

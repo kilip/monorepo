@@ -80,7 +80,7 @@ EOC;
 
         $processor = new SplitProcessor($logger, $input, $runner, $config);
 
-        $config->setConfigFile($configFile);
+        $config->parseFile($configFile);
         $processor->onSplit();
 
         $display = $this->getDisplay();

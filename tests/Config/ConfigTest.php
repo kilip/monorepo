@@ -32,63 +32,117 @@ class ConfigTest extends TestCase
      */
     private $logger;
 
+    /**
+     * @var string
+     */
+    private $tmpDir;
+
     public function setUp()
     {
         $this->resetOutput();
 
         $this->logger = new Logger($this->getOutput());
-    }
-
-    public function getTestSetConfigFile()
-    {
-        return array(
-            // root 1 tests
-            array('getBranches', 'root1', array('master', 'develop')),
-            array('getTarget', 'root1', 'root1/.git'),
-
-            // root 2 tests
-            array('getBranches', 'root2', 'master'),
-            array('getIgnoredTags', 'root2', 'v1.0.*'),
-            array('getTarget', 'root2', 'root2/.git'),
-        );
+        $this->tmpDir = sys_get_temp_dir().'/monorepo/tests';
     }
 
     /**
-     * @param $method
-     * @param $expected
-     * @dataProvider getTestSetConfigFile
+     * @return string Generated json config file name
      */
-    public function testSetConfigFile($method, $project, $expected)
+    public function generateJsonConfig1()
     {
-        $tmpDir = sys_get_temp_dir().'/monorepo/tests';
-        @mkdir($tmpDir, 0777, true);
-
+        $tmpDir = $this->tmpDir;
         $json = <<<EOC
 {
     "root1": {
-        "target": "{$tmpDir}/root1/.git",
-        "prefixes": {
-            "src/sub1": "{$tmpDir}/sub1/.git",
-            "src/sub2": "{$tmpDir}/sub2/.git"
-        },
+        "origin": "{$tmpDir}/root1/.git",
+        "prefixes": [
+            {
+                "key": "src/sub1",
+                "target": "{$tmpDir}/sub1/.git" 
+            },
+            {
+                "key": "src/sub2",
+                "target": "{$tmpDir}/sub2/.git"
+            }
+        ],
         "branches": ["develop","master"]
     },
     "root2": {
-        "target": "{$tmpDir}/root2/.git",
-        "prefixes": {
-            "lib/sub1": "{$tmpDir}/sub1/.git",
-            "lib/sub2": "{$tmpDir}/sub2/.git"
-        },
+        "origin": "{$tmpDir}/root2/.git",
+        "prefixes": [
+            {
+                "key": "lib/sub1",
+                "target": "{$tmpDir}/sub1/.git"
+            },
+            {
+                "key": "lib/sub2",
+                "target": "{$tmpDir}/sub2/.git"
+            }
+        ],
         "ignored-tags": "v1.0.*"
     }
 }
 EOC;
 
         $file = $tmpDir.'/test1.json';
+        $tmpDir = sys_get_temp_dir().'/monorepo/tests';
+        @mkdir($tmpDir, 0777, true);
         file_put_contents($file, $json, LOCK_EX);
 
+        return $file;
+    }
+
+    public function getTestParseFile()
+    {
+        return array(
+            // root 1 tests
+            array('getBranches', 'root1', array('master', 'develop')),
+            array('getOrigin', 'root1', 'root1/.git'),
+            array('getName', 'root1', 'root1'),
+
+            // root 2 tests
+            array('getBranches', 'root2', 'master'),
+            array('getIgnoredTags', 'root2', 'v1.0.*'),
+            array('getOrigin', 'root2', 'root2/.git'),
+            array('getName', 'root2', 'root2'),
+        );
+    }
+
+    public function testGetProjects()
+    {
         $config = new Config($this->logger);
-        $config->setConfigFile($file);
+
+        $this->assertEmpty($config->getProjects());
+
+        $config->parseFile($this->generateJsonConfig1());
+        $projects = $config->getProjects();
+        $this->assertCount(2, $projects);
+        $this->assertArrayHasKey('root1', $projects);
+        $this->assertArrayHasKey('root2', $projects);
+    }
+
+    public function testGetProjectThrowsException()
+    {
+        $config = new Config($this->logger);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Project "foo" not exist.');
+
+        $config->parseFile($this->generateJsonConfig1());
+        $config->getProject('foo');
+    }
+
+    /**
+     * @param $method
+     * @param $expected
+     * @dataProvider getTestparseFile
+     */
+    public function testparseFile($method, $project, $expected)
+    {
+        $file = $this->generateJsonConfig1();
+        $config = new Config($this->logger);
+
+        $config->parseFile($file);
 
         $project = $config->getProject($project);
         $return = call_user_func_array(array($project, $method), array($project));
@@ -100,5 +154,40 @@ EOC;
         foreach ($expected as $item) {
             $this->assertContains($item, $return);
         }
+    }
+
+    /**
+     * @TODO: Add more tests
+     */
+    public function testProjectPrefixes()
+    {
+        $config = new Config($this->logger);
+
+        $config->parseFile($this->generateJsonConfig1());
+
+        $prefixes = $config->getProject('root1')->getPrefixes();
+        $this->assertCount(2, $prefixes);
+    }
+
+    public function testSetConfigThrowsWhenFileNotExists()
+    {
+        $config = new Config($this->logger);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The config file "foo" is not exist or unreadable.');
+
+        $config->parseFile('foo');
+    }
+
+    public function testSetConfigThrowsWithInvalidJson()
+    {
+        $config = new Config($this->logger);
+
+        $file = $this->generateJsonConfig1();
+        file_put_contents($file, '{"foo":}', LOCK_EX);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Error reading config from "'.$file.'". Error message: "Syntax error"');
+        $config->parseFile($file);
     }
 }

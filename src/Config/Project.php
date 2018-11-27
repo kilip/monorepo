@@ -88,14 +88,6 @@ class Project
         return $this->config['prefixes'];
     }
 
-    /**
-     * @return string
-     */
-    public function getTarget()
-    {
-        return $this->config['target'];
-    }
-
     private function validate($config)
     {
         if (
