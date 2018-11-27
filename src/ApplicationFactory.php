@@ -67,13 +67,15 @@ class ApplicationFactory
 
         $this->processConfig($builder);
 
-        if (!$cache->isFresh() || true) {
+        if (!$cache->isFresh() || 'test' === getenv('MONOREPO_ENV')) {
             $builder->addCompilerPass(new DefaultPass());
             $builder->compile(true);
 
             $dumper = new PhpDumper($builder);
-            $resources = $builder->getResources();
-            $cache->write($dumper->dump(array('class' => $className)), $resources);
+            $cache->write(
+                $dumper->dump(array('class' => $className)),
+                $builder->getResources()
+            );
         }
 
         if (!class_exists($className)) {
