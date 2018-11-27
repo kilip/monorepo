@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Monorepo;
+namespace Monorepo\Config;
 
 use Monorepo\Config\Project;
 use Monorepo\Console\Logger;

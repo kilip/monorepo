@@ -19,6 +19,6 @@ services:
 
     Monorepo\Processor\SplitProcessor: ~
     Monorepo\Processor\Runner: ~
-    Monorepo\Config: ~
+    Monorepo\Config\Config: ~
     # command lists
     Monorepo\Command\SplitCommand: ~

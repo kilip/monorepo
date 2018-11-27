@@ -15,7 +15,7 @@ use Gitonomy\Git\Admin;
 use Gitonomy\Git\Reference\Branch;
 use Gitonomy\Git\Repository;
 use Monorepo\Command\SplitCommand;
-use Monorepo\Config;
+use Monorepo\Config\Config;
 use Monorepo\Config\Project;
 use Monorepo\Console\Logger;
 use Monorepo\Exception\CommandException;

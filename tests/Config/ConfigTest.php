@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace MonorepoTest;
+namespace MonorepoTest\Config;
 
-use Monorepo\Config;
+use Monorepo\Config\Config;
 use Monorepo\Console\Logger;
 use Monorepo\Test\OutputTrait;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
  * Class ConfigTest.
  *
  * @author Anthonius Munthi <https://itstoni.com>
- * @covers \Monorepo\Config
+ * @covers \Monorepo\Config\Config
  * @covers \Monorepo\Config\Project
  */
 class ConfigTest extends TestCase

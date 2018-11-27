@@ -11,7 +11,7 @@
 
 namespace MonorepoTest\Processor;
 
-use Monorepo\Config;
+use Monorepo\Config\Config;
 use Monorepo\Console\Logger;
 use Monorepo\Processor\Runner;
 use Monorepo\Processor\SplitProcessor;
