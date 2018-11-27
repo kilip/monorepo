@@ -22,6 +22,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @author  Anthonius Munthi <https://itstoni.com>
  * @covers  \Monorepo\ApplicationFactory
+ * @covers  \Monorepo\DI\Compiler\DefaultPass
  */
 class ApplicationFactoryTest extends TestCase
 {
