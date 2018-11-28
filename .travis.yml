@@ -25,11 +25,9 @@ before_install:
 install:
 - composer install --prefer-dist --no-progress --no-suggest --ansi
 
-before_script:
-  - git config --global user.email "foo@bar.com"
-  - git config --global user.name "Foo Bar"
-  
 script:
+- git config --global user.email "foo@bar.com"
+- git config --global user.name "Foo Bar"
 - |
   if [[ $COVERAGE = yes  ]]; then
     composer coverage;
