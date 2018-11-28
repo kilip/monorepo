@@ -36,8 +36,7 @@ return PhpCsFixer\Config::create()
         'protected_to_private'               => false,
         '@PSR1'                              => true,
         '@PSR2'                              => true,
-        '@PHP70Migration'                    => true,
-        '@PHP70Migration:risky'              => true,
+        'declare_strict_types'               => true,
         'align_multiline_comment'            => true,
         'ordered_imports'                    => ['sortAlgorithm' => 'alpha'],
         'header_comment'                     => ['header' => $header],
@@ -46,6 +45,8 @@ return PhpCsFixer\Config::create()
         'method_separation'                  => true,
         'no_extra_blank_lines'               => ['tokens' => ['break', 'continue', 'extra', 'return', 'throw', 'use', 'parenthesis_brace_block', 'square_brace_block', 'curly_brace_block']],
         'blank_line_before_statement'        => true,
+        'fully_qualified_strict_types'       => false,
+        'void_return'                        => false,
 
         // Symfony overwritings
         'binary_operator_spaces' => [
@@ -58,6 +59,7 @@ return PhpCsFixer\Config::create()
         PhpCsFixer\Finder::create()
             ->in(__DIR__.'/src')
             ->in(__DIR__.'/tests')
+            ->notPath('var')
             ->append([
                 __FILE__,
                 __DIR__.'/bin/monorepo',

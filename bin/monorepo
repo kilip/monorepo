@@ -53,11 +53,11 @@ try {
     $factory->compileConfig();
     exit($app->run($input, $output));
 } catch (\Exception $e) {
-    if(defined('app')){
+    if (defined('app')) {
         $app->renderException($e, $output);
-    }else{
+    } else {
         $output->writeln(
-            sprintf('<error>%s</error>',$e->getMessage())
+            sprintf('<error>%s</error>', $e->getMessage())
         );
     }
     exit(1);

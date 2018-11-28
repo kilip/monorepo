@@ -19,10 +19,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Logger extends AbstractLogger
 {
-    public const CMD        = 'cmd';
-    public const ERROR      = 'error';
-    public const INFO       = 'info';
-    public const OUT        = 'out';
+    const CMD        = 'cmd';
+    const ERROR      = 'error';
+    const INFO       = 'info';
+    const OUT        = 'out';
+
     private $errored        = false;
     private $formatLevelMap = [
         LogLevel::EMERGENCY => self::INFO,

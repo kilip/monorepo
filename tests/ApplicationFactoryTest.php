@@ -31,7 +31,7 @@ class TestApplicationFactory extends ApplicationFactory
     /**
      * @param Container $container
      */
-    public function setContainer(Container $container): void
+    public function setContainer(Container $container)
     {
         $this->container = $container;
     }
