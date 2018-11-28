@@ -25,6 +25,7 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\Dotenv\Dotenv;
 
 class ApplicationFactory
 {
@@ -35,6 +36,17 @@ class ApplicationFactory
 
     public function boot(): self
     {
+        $dotenv = new Dotenv();
+        $files  = [
+            getcwd().'/.env.dist',
+        ];
+
+        foreach ($files as $file) {
+            if (is_readable($file)) {
+                $dotenv->load($file);
+            }
+        }
+
         $this->compileContainer();
 
         return $this;
@@ -42,7 +54,6 @@ class ApplicationFactory
 
     public function compileConfig()
     {
-        $env        = self::getEnv();
         $container  = $this->container;
         $dispatcher = $container->get('monorepo.dispatcher');
         $logger     = $container->get('monorepo.logger');
@@ -63,7 +74,7 @@ class ApplicationFactory
             }
         }
 
-        if ('test' === $env) {
+        if (self::isDev()) {
             $cacheDir = getcwd().'/var/cache';
         }
 
@@ -99,8 +110,7 @@ class ApplicationFactory
         $id            = crc32($configFile);
         $configFile    = realpath($configFile);
         $cacheFileName = $cacheDir.\DIRECTORY_SEPARATOR.$id.'.dat';
-        $env           = self::getEnv();
-        $cache         = new ConfigCache($cacheFileName, 'test' === $env);
+        $cache         = new ConfigCache($cacheFileName, !self::isDev());
 
         if (!is_dir($cacheDir)) {
             mkdir($cacheDir, 0777, true);
@@ -136,12 +146,16 @@ class ApplicationFactory
         return getenv('MONOREPO_ENV');
     }
 
+    public static function isDev()
+    {
+        return 'dev' === self::getEnv() || 'test' === self::getEnv();
+    }
+
     private function compileContainer()
     {
-        $env         = getenv('MONOREPO_ENV');
-        $cacheDir    = 'test' === $env ? getcwd().'/var/cache' : getenv('HOME').'/.monorepo/cache';
+        $cacheDir    = self::isDev() ? getcwd().'/var/cache' : getenv('HOME').'/.monorepo/cache';
         $cachePath   = $cacheDir.'/container.php';
-        $cache       = new ConfigCache($cachePath, 'test' === $env);
+        $cache       = new ConfigCache($cachePath, !self::isDev());
         $className   = 'CachedContainer';
         $builder     = new ContainerBuilder();
 
