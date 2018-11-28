@@ -130,7 +130,7 @@ class Config
     /**
      * @param string $cacheDir
      */
-    public function setCacheDir(string $cacheDir): void
+    public function setCacheDir(string $cacheDir)
     {
         $this->cacheDir = $cacheDir;
     }

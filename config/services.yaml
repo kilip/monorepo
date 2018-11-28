@@ -24,7 +24,9 @@ services:
         class: Monorepo\Processor\Filesystem
 
     # event subscribers
-    Monorepo\Processor\SplitProcessor: ~
+    Monorepo\Processor\:
+        resource: '../src/Processor/*'
+        #exclude: '../src/Command/{AbstractCommand,CommandInterface}'
 
     # command lists
     Monorepo\Command\:

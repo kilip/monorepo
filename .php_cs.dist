@@ -24,8 +24,6 @@ if (!file_exists(__DIR__.'/src')) {
     exit(0);
 }
 
-$finder = \Symfony\Component\Finder\Finder::create();
-
 return PhpCsFixer\Config::create()
     ->setRules([
         '@Symfony'                           => true,
@@ -36,6 +34,8 @@ return PhpCsFixer\Config::create()
         'protected_to_private'               => false,
         '@PSR1'                              => true,
         '@PSR2'                              => true,
+        '@PHP70Migration' => true,
+        '@PHP70Migration:risky' => true,
         'declare_strict_types'               => true,
         'align_multiline_comment'            => true,
         'ordered_imports'                    => ['sortAlgorithm' => 'alpha'],
@@ -59,7 +59,7 @@ return PhpCsFixer\Config::create()
         PhpCsFixer\Finder::create()
             ->in(__DIR__.'/src')
             ->in(__DIR__.'/tests')
-            ->notPath('var')
+            ->notPath(__DIR__.'/var')
             ->append([
                 __FILE__,
                 __DIR__.'/bin/monorepo',
@@ -69,6 +69,7 @@ return PhpCsFixer\Config::create()
                 'config',
                 'build',
                 'fixtures',
+                'test'
             ])
     )
 ;

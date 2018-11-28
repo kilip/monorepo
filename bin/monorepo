@@ -55,10 +55,12 @@ try {
 } catch (\Exception $e) {
     if (defined('app')) {
         $app->renderException($e, $output);
-    } else {
+    } elseif(defined('output')) {
         $output->writeln(
             sprintf('<error>%s</error>', $e->getMessage())
         );
+    }else{
+        echo $e->getMessage();
     }
     exit(1);
 }

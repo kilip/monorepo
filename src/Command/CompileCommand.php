@@ -58,7 +58,7 @@ class CompileCommand extends AbstractCommand
      */
     private $versionDate;
 
-    public function compile($pharFile = 'monorepo.phar'): void
+    public function compile($pharFile = 'monorepo.phar')
     {
         if (file_exists($pharFile)) {
             unlink($pharFile);
@@ -92,7 +92,7 @@ class CompileCommand extends AbstractCommand
         return $this->versionDate;
     }
 
-    protected function configure(): void
+    protected function configure()
     {
         $this
             ->setName('compile')
@@ -101,7 +101,7 @@ class CompileCommand extends AbstractCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $cwd = getcwd();
         chdir(\dirname(__DIR__.'/../../../'));
@@ -126,7 +126,7 @@ class CompileCommand extends AbstractCommand
      * @param \SplFileInfo $file
      * @param bool         $strip
      */
-    private function addFile($phar, \SplFileInfo $file, $strip = true): void
+    private function addFile($phar, \SplFileInfo $file, $strip = true)
     {
         $path    = $this->getRelativeFilePath($file);
         $content = file_get_contents($file->getRealPath());
@@ -144,14 +144,14 @@ class CompileCommand extends AbstractCommand
         $phar->addFromString($path, $content);
     }
 
-    private function addMonorepoBin($phar): void
+    private function addMonorepoBin($phar)
     {
         $content = file_get_contents($this->baseDir.'/bin/monorepo');
         $content = preg_replace('{^#!/usr/bin/env php\s*}', '', $content);
         $phar->addFromString('bin/monorepo', $content);
     }
 
-    private function generatePhar($pharFile = 'monorepo.phar'): void
+    private function generatePhar($pharFile = 'monorepo.phar')
     {
         $finderSort = function ($a, $b) {
             return strcmp(strtr($a->getRealPath(), '\\', '/'), strtr($b->getRealPath(), '\\', '/'));
@@ -215,7 +215,7 @@ class CompileCommand extends AbstractCommand
         $util->save($pharFile, \Phar::SHA1);
     }
 
-    private function generateVersionFile($targetDir): void
+    private function generateVersionFile($targetDir)
     {
         $version     = $this->version;
         $branchAlias = $this->branchAliasVersion;
@@ -293,7 +293,7 @@ __HALT_COMPILER();
 EOF;
     }
 
-    private function processFiles($phar): void
+    private function processFiles($phar)
     {
         $files       = $this->files;
         $progressBar = new ProgressBar($this->output, \count($files));
@@ -310,7 +310,7 @@ EOF;
     /**
      * @param Finder $finder
      */
-    private function registerFiles(Finder $finder): void
+    private function registerFiles(Finder $finder)
     {
         foreach ($finder as $file) {
             if (!\in_array($file, $this->files)) {
@@ -319,7 +319,7 @@ EOF;
         }
     }
 
-    private function setupVersion(): void
+    private function setupVersion()
     {
         $process = new Process('git log --pretty="%H" -n1 HEAD', __DIR__);
         if (0 != $process->run()) {
