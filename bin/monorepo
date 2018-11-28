@@ -43,7 +43,7 @@ use Monorepo\ApplicationFactory;
 
 try {
     /* @var \Monorepo\Console\Application $app */
-    /* @var \Symfony\Component\Console\Output\OutputInterface $output */
+    /* @var \Symfony\Component\Console\Output\ConsoleOutput $output */
     $factory    = new ApplicationFactory();
     $container  = $factory->boot()->getContainer();
     $input      = $container->get('monorepo.input');
@@ -53,6 +53,12 @@ try {
     $factory->compileConfig();
     exit($app->run($input, $output));
 } catch (\Exception $e) {
-    $app->renderException($e, $output);
+    if(defined('app')){
+        $app->renderException($e, $output);
+    }else{
+        $output->writeln(
+            sprintf('<error>%s</error>',$e->getMessage())
+        );
+    }
     exit(1);
 }
