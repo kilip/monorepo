@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Monorepo\Config;
 
 use JsonSchema\Validator;
+use Monorepo\ApplicationFactory;
 use Monorepo\Console\Logger;
 use Monorepo\Event\EventDispatcher;
 use Monorepo\Exception\InvalidArgumentException;
@@ -37,12 +38,28 @@ class Config
      *
      * @var Project[]
      */
-    private $projects;
+    private $projects = [];
 
     public function __construct(EventDispatcher $dispatcher, Logger $logger)
     {
         $this->dispatcher = $dispatcher;
         $this->logger     = $logger;
+    }
+
+    public function getMonorepoDir()
+    {
+        return ApplicationFactory::isDev() ? getcwd().'/var/test-monorepo' : getcwd().'/.monorepo';
+    }
+
+    public function getProject($name)
+    {
+        if (!isset($this->projects[$name])) {
+            throw new InvalidArgumentException(
+                sprintf('Project "%s" not exist.', $name)
+            );
+        }
+
+        return $this->projects[$name];
     }
 
     /**

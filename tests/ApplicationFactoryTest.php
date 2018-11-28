@@ -133,7 +133,7 @@ class ApplicationFactoryTest extends TestCase
 
         // setConfig() should be called twice
         $config->expects($this->once())
-            ->method('setConfig')
+            ->method('setProjects')
             ->with($this->isType('array'))
         ;
 

@@ -15,6 +15,8 @@ namespace MonorepoTest\Console;
 
 use Monorepo\Console\Application;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class ApplicationTest.
@@ -26,7 +28,9 @@ class ApplicationTest extends TestCase
 {
     public function testConstruct()
     {
-        $app = new Application();
+        $input  = $this->createMock(InputInterface::class);
+        $output = $this->createMock(OutputInterface::class);
+        $app    = new Application($input, $output);
 
         $this->assertTrue($app->getDefinition()->hasOption('config'));
         $this->assertTrue($app->getDefinition()->hasOption('dry-run'));

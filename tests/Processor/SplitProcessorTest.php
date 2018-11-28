@@ -23,6 +23,7 @@ use Monorepo\Test\OutputTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Class SplitProcessorTest.
@@ -48,6 +49,9 @@ class SplitProcessorTest extends TestCase
         $this->logger = new Logger($this->getOutput());
         $this->getOutput()->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
         $this->tempDir = sys_get_temp_dir().'/monorepo';
+
+        $fs = new Filesystem();
+        $fs->remove(getcwd().'/var/test-monorepo');
     }
 
     public function testSplit()

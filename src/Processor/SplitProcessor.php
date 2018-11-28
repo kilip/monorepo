@@ -88,11 +88,13 @@ class SplitProcessor implements EventSubscriberInterface
 
     private function processProject(Project $project)
     {
-        $logger = $this->logger;
+        $logger      = $this->logger;
+        $config      = $this->config;
+        $monorepoDir = $config->getMonorepoDir();
+        $cwd         = $monorepoDir.\DIRECTORY_SEPARATOR.$project->getName();
+
         $this->logger->info('processing {0}', [$project->getName()]);
 
-        /* @TODO: make directory configurable */
-        $cwd = getcwd().'/.monorepo/'.$project->getName();
         if (!is_dir($cwd)) {
             $logger->info('cloning from {0} into {1}', [$project->getOrigin(), $cwd]);
             $repo = Admin::cloneRepository($cwd, $project->getOrigin());
