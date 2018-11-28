@@ -36,17 +36,7 @@ class ApplicationFactory
 
     public function boot(): self
     {
-        $dotenv = new Dotenv();
-        $files  = [
-            getcwd().'/.env.dist',
-        ];
-
-        foreach ($files as $file) {
-            if (is_readable($file)) {
-                $dotenv->load($file);
-            }
-        }
-
+        $this->loadEnv();
         $this->compileContainer();
 
         return $this;
@@ -149,6 +139,28 @@ class ApplicationFactory
     public static function isDev()
     {
         return 'dev' === self::getEnv() || 'test' === self::getEnv();
+    }
+
+    public function loadEnv()
+    {
+        static $loaded = false;
+
+        if ($loaded) {
+            return;
+        }
+
+        $dotenv = new Dotenv();
+        $files  = [
+            getcwd().'/.env.dist',
+        ];
+
+        foreach ($files as $file) {
+            if (is_readable($file)) {
+                $dotenv->load($file);
+            }
+        }
+
+        $loaded = true;
     }
 
     private function compileContainer()

@@ -58,6 +58,8 @@ class ApplicationFactoryTest extends TestCase
      */
     private $container;
 
+    private static $cwd;
+
     /**
      * @var MockObject
      */
@@ -67,6 +69,16 @@ class ApplicationFactoryTest extends TestCase
      * @var ApplicationFactory
      */
     private $target;
+
+    public static function setUpBeforeClass()
+    {
+        self::$cwd = getcwd();
+    }
+
+    public static function tearDownAfterClass()
+    {
+        chdir(self::$cwd);
+    }
 
     public function setUp()
     {
@@ -103,6 +115,8 @@ class ApplicationFactoryTest extends TestCase
         $this->container  = $container;
         $this->dispatcher = $dispatcher;
         $this->config     = $config;
+
+        chdir(self::$cwd);
     }
 
     public function onConfigNotFound(ConfigEvent $event)
@@ -119,6 +133,41 @@ class ApplicationFactoryTest extends TestCase
         $this->assertInstanceOf(Application::class, $container->get('monorepo.app'));
     }
 
+    /**
+     * @covers \Monorepo\Event\ConfigEvent
+     */
+    public function testCompileConfig()
+    {
+        $dispatcher = $this->dispatcher;
+        $container  = $this->container;
+        $target     = $this->getMockBuilder(TestApplicationFactory::class)
+            ->setMethods(['compileConfigFile'])
+            ->getMock()
+        ;
+
+        $dispatcher->addListener(Config::EVENT_CONFIG_NOT_FOUND, [$this, 'onConfigNotFound']);
+
+        $dispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(Config::EVENT_CONFIG_NOT_FOUND, $this->isInstanceOf(ConfigEvent::class))
+        ;
+
+        $target->loadEnv();
+        $target->expects($this->once())
+            ->method('compileConfigFile')
+            ->with(getcwd().'/var/cache', $this->generateJsonConfig1())
+            ->willReturn(null)
+        ;
+
+        $target->setContainer($container);
+        $target->compileConfig();
+    }
+
+    /**
+     * @throws \Exception
+     * @covers \Monorepo\Config\Project::serialize
+     * @covers \Monorepo\Config\Project::unserialize
+     */
     public function testCompileConfigFile()
     {
         $target     = $this->target;
@@ -154,5 +203,31 @@ class ApplicationFactoryTest extends TestCase
 
         $display = $this->getDisplay();
         $this->assertContains(sprintf('loading config cache from "%s.dat"', $id), $display);
+    }
+
+    public function testCompileConfigWithConfigFileExists()
+    {
+        $container  = $this->container;
+        $file       = $this->generateJsonConfig1();
+        $cwd        = sys_get_temp_dir().'/monorepo';
+        $configFile = $cwd.'/monorepo.json';
+        copy($file, $configFile);
+
+        chdir($cwd);
+        $target = $this->getMockBuilder(TestApplicationFactory::class)
+            ->setMethods(['compileConfigFile'])
+            ->getMock()
+        ;
+
+        $target->loadEnv();
+
+        $target->expects($this->once())
+            ->method('compileConfigFile')
+            ->with(getcwd().'/var/cache', $configFile)
+            ->willReturn(null)
+        ;
+
+        $target->setContainer($container);
+        $target->compileConfig();
     }
 }

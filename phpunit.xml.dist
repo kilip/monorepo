@@ -19,6 +19,7 @@
             <exclude>
                 <directory>./src/Test</directory>
                 <file>./src/Command/CompileCommand.php</file>
+                <file>./src/Console/LogLevel.php</file>
             </exclude>
         </whitelist>
     </filter>

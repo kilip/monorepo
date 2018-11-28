@@ -80,6 +80,14 @@ class ConfigTest extends TestCase
         ];
     }
 
+    public function testGetMonorepoDir()
+    {
+        $this->assertEquals(
+            getcwd().'/var/test-monorepo',
+            $this->target->getMonorepoDir()
+        );
+    }
+
     public function testGetProjects()
     {
         $config = $this->target;
@@ -139,6 +147,15 @@ class ConfigTest extends TestCase
 
         $prefixes = $config->getProject('root1')->getPrefixes();
         $this->assertCount(2, $prefixes);
+    }
+
+    public function testSetAndGetProject()
+    {
+        $projects = ['foo'];
+        $target   = $this->target;
+
+        $target->setProjects($projects);
+        $this->assertSame($projects, $target->getProjects());
     }
 
     public function testSetConfigThrowsWhenFileNotExists()
