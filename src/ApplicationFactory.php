@@ -166,7 +166,7 @@ class ApplicationFactory
 
         $this->processConfig($builder);
 
-        if (!$cache->isFresh()) {
+        if (!$cache->isFresh() || self::isDev()) {
             $builder->addCompilerPass(new DefaultPass());
             $builder->setParameter('monorepo.cache_dir', $cacheDir);
             $builder->compile(true);
