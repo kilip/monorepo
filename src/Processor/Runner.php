@@ -3,7 +3,7 @@
 /*
  * This file is part of the monorepo package.
  *
- *     (c) Anthonius Munthi
+ *     (c) Anthonius Munthi <https://itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -55,7 +55,7 @@ class Runner
             $exp = explode(PHP_EOL, $buffer);
             foreach ($exp as $item) {
                 if ('' !== trim($item)) {
-                    call_user_func(array($logger, $method), $item);
+                    \call_user_func(array($logger, $method), $item);
                 }
             }
         });

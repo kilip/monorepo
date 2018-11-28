@@ -3,7 +3,7 @@
 /*
  * This file is part of the monorepo package.
  *
- *     (c) Anthonius Munthi
+ *     (c) Anthonius Munthi <https://itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -57,14 +57,14 @@ class DefaultPass implements CompilerPassInterface
             $r = new \ReflectionClass($class);
             if (
                 $r->implementsInterface(CommandInterface::class)
-                && !in_array($class, $commands)
+                && !\in_array($class, $commands)
             ) {
                 $commands[] = $class;
             }
 
             if (
                 $r->implementsInterface(EventSubscriberInterface::class)
-                && !in_array($class, $subscribers)
+                && !\in_array($class, $subscribers)
             ) {
                 $subscribers[] = $class;
             }

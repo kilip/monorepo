@@ -3,7 +3,7 @@
 /*
  * This file is part of the monorepo package.
  *
- *     (c) Anthonius Munthi
+ *     (c) Anthonius Munthi <https://itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -50,8 +50,8 @@ trait OutputTrait
      */
     public function getOutput()
     {
-        if (!is_object($this->output)) {
-            $stream = fopen('php://memory', 'w', false);
+        if (!\is_object($this->output)) {
+            $stream = fopen('php://memory', 'wb', false);
             $this->output = new StreamOutput($stream);
         }
 

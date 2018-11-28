@@ -3,7 +3,7 @@
 /*
  * This file is part of the monorepo package.
  *
- *     (c) Anthonius Munthi
+ *     (c) Anthonius Munthi <https://itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -88,9 +88,9 @@ class LoggerTest extends TestCase
     {
         $this->getOutput()->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
 
-        call_user_func_array(array($this->logger, $method), array($message, $context));
+        \call_user_func_array(array($this->logger, $method), array($message, $context));
 
-        if (!is_array($expectedMessage)) {
+        if (!\is_array($expectedMessage)) {
             $expectedMessage = array($expectedMessage);
         }
         $display = $this->getDisplay(true);

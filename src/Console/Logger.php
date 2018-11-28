@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the monorepo package.
  *
- *     (c) Anthonius Munthi
+ *     (c) Anthonius Munthi <https://itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,10 +19,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Logger extends AbstractLogger
 {
-    const CMD = 'cmd';
-    const ERROR = 'error';
-    const INFO = 'info';
-    const OUT = 'out';
+    public const CMD = 'cmd';
+    public const ERROR = 'error';
+    public const INFO = 'info';
+    public const OUT = 'out';
     private $errored = false;
     private $formatLevelMap = array(
         LogLevel::EMERGENCY => self::INFO,

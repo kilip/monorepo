@@ -3,7 +3,7 @@
 /*
  * This file is part of the monorepo package.
  *
- *     (c) Anthonius Munthi
+ *     (c) Anthonius Munthi <https://itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -125,7 +125,7 @@ class SplitProcessor implements EventSubscriberInterface
         /* @var Branch $branch */
         foreach ($repo->getReferences()->getBranches() as $branch) {
             $branchName = $branch->getName();
-            if (!in_array($branchName, $branches)) {
+            if (!\in_array($branchName, $branches)) {
                 continue;
             }
             $logger->info('processing branch {0}', array($branchName));

@@ -3,7 +3,7 @@
 /*
  * This file is part of the monorepo package.
  *
- *     (c) Anthonius Munthi
+ *     (c) Anthonius Munthi <https://itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,9 +25,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SplitCommand extends AbstractCommand implements CommandInterface
 {
-    const SPLIT_EVENT = 'split.events.split';
-    const SPLIT_EVENT_POST = 'split.events.post';
-    const SPLIT_EVENT_PRE = 'split.events.pre';
+    public const SPLIT_EVENT = 'split.events.split';
+    public const SPLIT_EVENT_POST = 'split.events.post';
+    public const SPLIT_EVENT_PRE = 'split.events.pre';
 
     /**
      * @var EventDispatcher

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the monorepo package.
  *
- *     (c) Anthonius Munthi
+ *     (c) Anthonius Munthi <https://itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,11 +18,11 @@ use Symfony\Component\Console\Input\InputOption;
 
 class Application extends BaseApplication
 {
-    const BRANCH_ALIAS_VERSION = '@package_branch_alias_version@';
+    public const BRANCH_ALIAS_VERSION = '@package_branch_alias_version@';
 
-    const RELEASE_DATE = '@release_date@';
+    public const RELEASE_DATE = '@release_date@';
 
-    const VERSION = '@package_version@';
+    public const VERSION = '@package_version@';
 
     public function __construct()
     {
