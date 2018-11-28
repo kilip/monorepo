@@ -10,7 +10,8 @@
         }
     ],
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "process-timeout": 0
     },
     "require": {
         "php": ">=7.0",
