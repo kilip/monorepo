@@ -40,8 +40,8 @@ class Runner
     public function run($command, string $cwd = null, array $env = null, $input = null, float $timeout = 0)
     {
         $process = new Process($command, $cwd, $env, $input, $timeout);
-        $logger = $this->logger;
-        $cwd = $process->getWorkingDirectory();
+        $logger  = $this->logger;
+        $cwd     = $process->getWorkingDirectory();
 
         $logger->command('{0} cwd: {1}', array($command, $cwd));
 

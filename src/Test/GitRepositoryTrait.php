@@ -29,7 +29,7 @@ trait GitRepositoryTrait
     public function createEmptyRemote($target)
     {
         $target = $this->getTempDir().'/remote/'.$target;
-        $fs = new Filesystem();
+        $fs     = new Filesystem();
 
         $fs->remove($target);
         Admin::init($target);
@@ -39,9 +39,9 @@ trait GitRepositoryTrait
 
     public function createRemoteFrom($target, $fixturesDir)
     {
-        $target = $this->getTempDir().'/remote/'.$target;
+        $target  = $this->getTempDir().'/remote/'.$target;
         $tempDir = $this->getTempDir().'/temp/'.$target;
-        $fs = new Filesystem();
+        $fs      = new Filesystem();
 
         $fs->remove($tempDir);
         $fs->remove($target);

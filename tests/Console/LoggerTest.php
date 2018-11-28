@@ -65,8 +65,8 @@ class LoggerTest extends TestCase
     public function testError()
     {
         $outputMock = $this->createMock(ConsoleOutputInterface::class);
-        $output = $this->getOutput();
-        $logger = new Logger($outputMock);
+        $output     = $this->getOutput();
+        $logger     = new Logger($outputMock);
 
         $outputMock->expects($this->once())
             ->method('getErrorOutput')

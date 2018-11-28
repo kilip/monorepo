@@ -75,14 +75,14 @@ class Config
     public function parse($contents)
     {
         $config = array();
-        $json = json_decode($contents, true);
+        $json   = json_decode($contents, true);
 
         if (!$this->validate($contents)) {
             throw new \InvalidArgumentException('Monorepo config is not valid. Please check previous error!');
         }
 
         foreach ($json as $item) {
-            $name = $item['name'];
+            $name          = $item['name'];
             $config[$name] = new Project($this->logger, $name, $item);
         }
         $this->config = $config;
@@ -123,10 +123,10 @@ class Config
     private function validate($contents)
     {
         $schemaFile = realpath(__DIR__.'/../../config/schema.json');
-        $schema = (object) array('$ref' => 'file://'.$schemaFile);
-        $validator = new Validator();
-        $logger = $this->logger;
-        $json = json_decode($contents);
+        $schema     = (object) array('$ref' => 'file://'.$schemaFile);
+        $validator  = new Validator();
+        $logger     = $this->logger;
+        $json       = json_decode($contents);
 
         $validator->validate($json, $schema);
         foreach ($validator->getErrors() as $error) {

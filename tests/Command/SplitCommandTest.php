@@ -28,10 +28,10 @@ class SplitCommandTest extends CommandTestCase
 {
     public function testRunCommand()
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger     = $this->createMock(LoggerInterface::class);
         $dispatcher = $this->createMock(EventDispatcher::class);
-        $input = $this->createMock(InputInterface::class);
-        $output = $this->createMock(OutputInterface::class);
+        $input      = $this->createMock(InputInterface::class);
+        $output     = $this->createMock(OutputInterface::class);
 
         $logger->expects($this->exactly(3))
             ->method('debug')

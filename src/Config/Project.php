@@ -37,15 +37,15 @@ class Project
     ) {
         $default = array(
             'ignored-tags' => array(),
-            'tags' => array(),
-            'branches' => array('master'),
+            'tags'         => array(),
+            'branches'     => array('master'),
         );
 
         $this->logger = $logger;
-        $config = array_merge($default, $config);
-        $config = $this->validate($config);
+        $config       = array_merge($default, $config);
+        $config       = $this->validate($config);
         $this->config = $config;
-        $this->name = $name;
+        $this->name   = $name;
     }
 
     /**
@@ -94,7 +94,7 @@ class Project
             isset($config['ignored-tags'])
             && \is_string($tags = $config['ignored-tags'])
         ) {
-            $exp = explode(' ', $tags);
+            $exp                    = explode(' ', $tags);
             $config['ignored-tags'] = $exp;
         }
 

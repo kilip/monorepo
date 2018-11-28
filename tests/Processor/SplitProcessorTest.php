@@ -50,9 +50,9 @@ class SplitProcessorTest extends TestCase
     public function testSplit()
     {
         $remote1 = $this->createRemoteFrom('remote1', __DIR__.'/../fixtures/origin1');
-        $foo = $this->createEmptyRemote('foo');
-        $hello = $this->createEmptyRemote('hello');
-        $json = <<<EOC
+        $foo     = $this->createEmptyRemote('foo');
+        $hello   = $this->createEmptyRemote('hello');
+        $json    = <<<EOC
 [
     {
         "name": "origin1", 
@@ -75,7 +75,7 @@ EOC;
         file_put_contents($configFile, $json, LOCK_EX);
 
         $logger = $this->logger;
-        $input = $this->createMock(InputInterface::class);
+        $input  = $this->createMock(InputInterface::class);
         $runner = new Runner($logger);
         $config = new Config($logger);
 

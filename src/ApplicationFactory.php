@@ -54,11 +54,11 @@ class ApplicationFactory
     private function compileContainer()
     {
         $containerId = $this->getContainerId();
-        $cacheDir = getcwd().'/var/cache/'.$containerId;
-        $cachePath = $cacheDir.'/container.php';
-        $cache = new ConfigCache($cachePath, true);
-        $className = 'CachedContainer'.$containerId;
-        $builder = new ContainerBuilder();
+        $cacheDir    = getcwd().'/var/cache/'.$containerId;
+        $cachePath   = $cacheDir.'/container.php';
+        $cache       = new ConfigCache($cachePath, true);
+        $className   = 'CachedContainer'.$containerId;
+        $builder     = new ContainerBuilder();
 
         // @codeCoverageIgnoreStart
         if (!is_dir($cacheDir)) {
@@ -84,15 +84,15 @@ class ApplicationFactory
 
         // @codeCoverageIgnoreEnd
 
-        $container = new $className();
+        $container       = new $className();
         $this->container = $container;
     }
 
     private function processConfig(ContainerBuilder $builder)
     {
-        $config = realpath(__DIR__.'/../config');
+        $config  = realpath(__DIR__.'/../config');
         $locator = new FileLocator($config);
-        $loader = new YamlFileLoader($builder, $locator);
+        $loader  = new YamlFileLoader($builder, $locator);
 
         $loader->load('services.yaml');
     }

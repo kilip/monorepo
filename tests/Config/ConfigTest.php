@@ -51,7 +51,7 @@ class ConfigTest extends TestCase
     public function generateJsonConfig1()
     {
         $tmpDir = $this->tmpDir;
-        $json = <<<'JSON'
+        $json   = <<<'JSON'
 [
     {
         "name": "root1",
@@ -86,7 +86,7 @@ class ConfigTest extends TestCase
 ]
 JSON;
 
-        $file = $tmpDir.'/test1.json';
+        $file   = $tmpDir.'/test1.json';
         $tmpDir = sys_get_temp_dir().'/monorepo/tests';
         @mkdir($tmpDir, 0777, true);
         file_put_contents($file, $json, LOCK_EX);
@@ -141,13 +141,13 @@ JSON;
      */
     public function testparseFile($method, $project, $expected)
     {
-        $file = $this->generateJsonConfig1();
+        $file   = $this->generateJsonConfig1();
         $config = new Config($this->logger);
 
         $config->parseFile($file);
 
         $project = $config->getProject($project);
-        $return = \call_user_func_array(array($project, $method), array($project));
+        $return  = \call_user_func_array(array($project, $method), array($project));
 
         if (!\is_array($expected)) {
             $expected = array($expected);

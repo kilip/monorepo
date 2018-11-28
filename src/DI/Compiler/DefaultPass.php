@@ -28,13 +28,13 @@ class DefaultPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        $ids = $container->getServiceIds();
-        $commands = array();
+        $ids         = $container->getServiceIds();
+        $commands    = array();
         $subscribers = array();
 
         foreach ($ids as $id) {
             $definition = $container->findDefinition($id);
-            $class = $definition->getClass();
+            $class      = $definition->getClass();
 
             $definition
                 ->setPublic(true)
@@ -70,7 +70,7 @@ class DefaultPass implements CompilerPassInterface
             }
         }
 
-        $app = $container->findDefinition(Application::class);
+        $app        = $container->findDefinition(Application::class);
         $dispatcher = $container->findDefinition(EventDispatcher::class);
 
         foreach ($commands as $class) {

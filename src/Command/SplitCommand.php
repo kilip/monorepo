@@ -25,9 +25,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SplitCommand extends AbstractCommand implements CommandInterface
 {
-    public const SPLIT_EVENT = 'split.events.split';
+    public const SPLIT_EVENT      = 'split.events.split';
     public const SPLIT_EVENT_POST = 'split.events.post';
-    public const SPLIT_EVENT_PRE = 'split.events.pre';
+    public const SPLIT_EVENT_PRE  = 'split.events.pre';
 
     /**
      * @var EventDispatcher
@@ -50,7 +50,7 @@ class SplitCommand extends AbstractCommand implements CommandInterface
         LoggerInterface $logger,
         EventDispatcher $dispatcher
     ) {
-        $this->logger = $logger;
+        $this->logger     = $logger;
         $this->dispatcher = $dispatcher;
 
         parent::__construct('split');
@@ -79,7 +79,7 @@ EOC;
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $dispatcher = $this->dispatcher;
-        $logger = $this->logger;
+        $logger     = $this->logger;
 
         $logger->debug('dispatching event {0}', array(self::SPLIT_EVENT_PRE));
         $dispatcher->dispatch(self::SPLIT_EVENT_PRE);

@@ -19,44 +19,44 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Logger extends AbstractLogger
 {
-    public const CMD = 'cmd';
-    public const ERROR = 'error';
-    public const INFO = 'info';
-    public const OUT = 'out';
-    private $errored = false;
+    public const CMD        = 'cmd';
+    public const ERROR      = 'error';
+    public const INFO       = 'info';
+    public const OUT        = 'out';
+    private $errored        = false;
     private $formatLevelMap = array(
         LogLevel::EMERGENCY => self::INFO,
-        LogLevel::ALERT => self::INFO,
-        LogLevel::CRITICAL => self::INFO,
-        LogLevel::ERROR => self::ERROR,
-        LogLevel::WARNING => self::INFO,
-        LogLevel::NOTICE => self::INFO,
-        LogLevel::INFO => self::INFO,
-        LogLevel::DEBUG => self::INFO,
-        LogLevel::CMD => self::INFO,
-        LogLevel::OUT => self::INFO,
+        LogLevel::ALERT     => self::INFO,
+        LogLevel::CRITICAL  => self::INFO,
+        LogLevel::ERROR     => self::ERROR,
+        LogLevel::WARNING   => self::INFO,
+        LogLevel::NOTICE    => self::INFO,
+        LogLevel::INFO      => self::INFO,
+        LogLevel::DEBUG     => self::INFO,
+        LogLevel::CMD       => self::INFO,
+        LogLevel::OUT       => self::INFO,
     );
 
     private $output;
 
     private $verbosityLevelMap = array(
         LogLevel::EMERGENCY => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::ALERT => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::CRITICAL => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::ERROR => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::WARNING => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::INFO => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::DEBUG => OutputInterface::VERBOSITY_VERY_VERBOSE,
-        LogLevel::CMD => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::OUT => OutputInterface::VERBOSITY_NORMAL,
+        LogLevel::ALERT     => OutputInterface::VERBOSITY_NORMAL,
+        LogLevel::CRITICAL  => OutputInterface::VERBOSITY_NORMAL,
+        LogLevel::ERROR     => OutputInterface::VERBOSITY_NORMAL,
+        LogLevel::WARNING   => OutputInterface::VERBOSITY_NORMAL,
+        LogLevel::NOTICE    => OutputInterface::VERBOSITY_NORMAL,
+        LogLevel::INFO      => OutputInterface::VERBOSITY_NORMAL,
+        LogLevel::DEBUG     => OutputInterface::VERBOSITY_VERY_VERBOSE,
+        LogLevel::CMD       => OutputInterface::VERBOSITY_NORMAL,
+        LogLevel::OUT       => OutputInterface::VERBOSITY_NORMAL,
     );
 
     public function __construct(OutputInterface $output, array $verbosityLevelMap = array(), array $formatLevelMap = array())
     {
-        $this->output = $output;
+        $this->output            = $output;
         $this->verbosityLevelMap = $verbosityLevelMap + $this->verbosityLevelMap;
-        $this->formatLevelMap = $formatLevelMap + $this->formatLevelMap;
+        $this->formatLevelMap    = $formatLevelMap + $this->formatLevelMap;
     }
 
     public function command($message, array $context = array())
@@ -120,17 +120,17 @@ class Logger extends AbstractLogger
     private function getLevelFormat($level)
     {
         $colorMap = array(
-            'info' => 'white',
-            'cmd' => 'yellow',
+            'info'  => 'white',
+            'cmd'   => 'yellow',
             'error' => 'red',
-            'out' => 'yellow',
-            'WRN' => 'yellow',
-            'DBG' => 'white',
+            'out'   => 'yellow',
+            'WRN'   => 'yellow',
+            'DBG'   => 'white',
         );
 
         $levelMap = array(
             'warning' => 'WRN',
-            'debug' => 'DBG',
+            'debug'   => 'DBG',
         );
 
         if (isset($levelMap[$level])) {

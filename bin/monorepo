@@ -19,6 +19,7 @@ $files = array(
 foreach ($files as $file) {
     if (file_exists($file)) {
         define('MONOREPO_COMPOSER_INSTALL', $file);
+
         break;
     }
 }
@@ -48,8 +49,7 @@ try {
     $output     = $container->get('monorepo.output');
     $app        = $factory->getContainer()->get('monorepo.app');
 
-    exit($app->run($input,$output));
-
+    exit($app->run($input, $output));
 } catch (\Exception $e) {
     echo $e->getMessage();
     exit(1);

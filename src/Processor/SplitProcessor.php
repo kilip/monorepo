@@ -55,7 +55,7 @@ class SplitProcessor implements EventSubscriberInterface
         Config $config
     ) {
         $this->logger = $logger;
-        $this->input = $input;
+        $this->input  = $input;
         $this->runner = $runner;
         $this->config = $config;
         $this->configure();
@@ -71,8 +71,8 @@ class SplitProcessor implements EventSubscriberInterface
     public function onSplit()
     {
         $splitsh = $this->splitsh;
-        $runner = $this->runner;
-        $config = $this->config;
+        $runner  = $this->runner;
+        $config  = $this->config;
 
         foreach ($config->getProjects() as $project) {
             $this->processProject($project);
@@ -95,7 +95,7 @@ class SplitProcessor implements EventSubscriberInterface
             __DIR__.'/../../../../bin',
         );
         $execFinder = new ExecutableFinder();
-        $file = $execFinder->find('splitsh', null, $dirs);
+        $file       = $execFinder->find('splitsh', null, $dirs);
 
         if (!is_file($file)) {
             throw new CommandException(
@@ -118,8 +118,8 @@ class SplitProcessor implements EventSubscriberInterface
         }
 
         $branches = $project->getBranches();
-        $logger = $this->logger;
-        $runner = $this->runner;
+        $logger   = $this->logger;
+        $runner   = $this->runner;
 
         $repo->setLogger($logger);
         /* @var Branch $branch */
@@ -132,9 +132,9 @@ class SplitProcessor implements EventSubscriberInterface
             $repo->run('checkout', array('-q', $branchName));
 
             foreach ($project->getPrefixes() as $prefix) {
-                $key = $prefix['key'];
-                $name = substr($key, stripos($key, '/') + 1);
-                $target = "split/${name}";
+                $key          = $prefix['key'];
+                $name         = substr($key, stripos($key, '/') + 1);
+                $target       = "split/${name}";
                 $remoteTarget = $prefix['target'];
                 $runner->run($this->splitsh." --prefix=${key} --target=${target} --progress", $cwd);
                 $repo->run('checkout', array('-q', $target));

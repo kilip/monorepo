@@ -32,12 +32,12 @@ class Fixtures
 
     public function __construct($origin)
     {
-        $origin = realpath($origin);
+        $origin  = realpath($origin);
         $dirname = str_replace(__DIR__.'/fixtures/', '', $origin);
-        $target = sys_get_temp_dir().'/monorepo/'.$dirname;
+        $target  = sys_get_temp_dir().'/monorepo/'.$dirname;
 
-        $this->origin = $origin;
-        $this->target = $target;
+        $this->origin     = $origin;
+        $this->target     = $target;
         $this->filesystem = new Filesystem();
 
         $this->cleanDir($target);

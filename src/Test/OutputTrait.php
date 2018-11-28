@@ -51,7 +51,7 @@ trait OutputTrait
     public function getOutput()
     {
         if (!\is_object($this->output)) {
-            $stream = fopen('php://memory', 'wb', false);
+            $stream       = fopen('php://memory', 'wb', false);
             $this->output = new StreamOutput($stream);
         }
 
