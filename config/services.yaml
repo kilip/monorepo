@@ -20,9 +20,13 @@ services:
         class: Monorepo\Config\Config
     monorepo.runner:
         class: Monorepo\Processor\Runner
+    monorepo.filesystem:
+        class: Monorepo\Processor\Filesystem
 
     # event subscribers
     Monorepo\Processor\SplitProcessor: ~
 
     # command lists
-    Monorepo\Command\SplitCommand: ~
+    Monorepo\Command\:
+        resource: '../src/Command/*'
+        exclude: '../src/Command/{AbstractCommand,CommandInterface}'
