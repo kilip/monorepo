@@ -93,8 +93,8 @@ class Downloader
                 // handle error here
                 break;
             case STREAM_NOTIFY_REDIRECTED:
-                $this->logger->info('');
-                $this->logger->info('Download redirected!');
+                $this->output->writeln('');
+                $this->logger->info('Download redirected to {0}', [$message]);
                 $this->progressBar->clear();
 
                 break;

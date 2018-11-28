@@ -23,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SelfUpdateCommand extends AbstractCommand
 {
-    const BASE_URL = 'https://netix.dl.sourceforge.net/project/monorepo';
+    const BASE_URL = 'https://sourceforge.net/projects/monorepo/files/%%file%%/download';
 
     /**
      * @var string
@@ -114,7 +114,8 @@ class SelfUpdateCommand extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $tempDir     = $this->tempDir;
-        $url         = static::BASE_URL.'/monorepo.phar.json';
+        $baseUrl     = static::BASE_URL;
+        $url         = str_replace('%%file%%', 'monorepo.phar.json', $baseUrl);
         $versionFile = $tempDir.'/update/monorepo.phar.json';
         $fs          = $this->fs;
         $logger      = $this->logger;
@@ -152,8 +153,9 @@ class SelfUpdateCommand extends AbstractCommand
 
         $targetFile = $tempDir.\DIRECTORY_SEPARATOR.'monorepo.phar';
         if (!is_file($targetFile)) {
-            $url        = static::BASE_URL.'/monorepo.phar';
-            $downloader = $this->downloader;
+            $baseUrl     = static::BASE_URL;
+            $url         = str_replace('%%file%%', 'monorepo.phar', $baseUrl);
+            $downloader  = $this->downloader;
             $downloader->run($url, $targetFile);
         }
 
