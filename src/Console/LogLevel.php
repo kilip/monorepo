@@ -23,6 +23,6 @@ use Psr\Log\LogLevel as BaseLogLevel;
  */
 class LogLevel extends BaseLogLevel
 {
-    public const CMD = 'cmd';
-    public const OUT = 'out';
+    const CMD = 'cmd';
+    const OUT = 'out';
 }

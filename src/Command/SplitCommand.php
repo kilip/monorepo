@@ -27,9 +27,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SplitCommand extends AbstractCommand implements CommandInterface
 {
-    public const SPLIT_EVENT      = 'split.events.split';
-    public const SPLIT_EVENT_POST = 'split.events.post';
-    public const SPLIT_EVENT_PRE  = 'split.events.pre';
+    const SPLIT_EVENT      = 'split.events.split';
+    const SPLIT_EVENT_POST = 'split.events.post';
+    const SPLIT_EVENT_PRE  = 'split.events.pre';
 
     /**
      * @var EventDispatcher
