@@ -52,6 +52,8 @@ trait GitRepositoryTrait
         $tempRepo = Admin::init($tempDir, false);
         $fs->mirror($fixturesDir, $tempRepo->getWorkingDir());
         $tempRepo->run('add', ['.', '-A']);
+        $tempRepo->run('config', ['user.email', '""toni@monorepo.com"']);
+        $tempRepo->run('config', ['user.name', '"Anthonius Munthi"']);
         $tempRepo->run('commit', ['-am', '"initial commit"']);
         $tempRepo->run('remote', ['add', 'origin', $target]);
         $tempRepo->run('push', ['-u', 'origin', 'master']);
