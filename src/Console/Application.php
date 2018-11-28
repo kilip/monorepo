@@ -13,9 +13,10 @@ declare(strict_types=1);
 
 namespace Monorepo\Console;
 
-use Monorepo\Command\CompileCommand;
 use Symfony\Component\Console\Application as BaseApplication;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Application extends BaseApplication
 {
@@ -25,9 +26,12 @@ class Application extends BaseApplication
 
     public const VERSION = '@package_version@';
 
-    public function __construct()
+    private $configured;
+
+    public function __construct(InputInterface $input, OutputInterface $output)
     {
         parent::__construct('monorepo', self::VERSION);
+        $this->configureIO($input, $output);
         $this->setup();
     }
 
@@ -48,10 +52,12 @@ class Application extends BaseApplication
             ),
         ]);
 
-        $inPhar = getenv('MONOREPO_PHAR_MODE');
-        if (1 !== $inPhar) {
-            $this->add(new CompileCommand());
+        $className = 'Monorepo\Command\CompileCommand';
+        if (class_exists($className)) {
+            $this->add(new $className());
         }
+
+        $this->configured = true;
     }
 
     /**
@@ -64,5 +70,12 @@ class Application extends BaseApplication
             static::BRANCH_ALIAS_VERSION,
             static::RELEASE_DATE,
         ]);
+    }
+
+    protected function configureIO(InputInterface $input, OutputInterface $output)
+    {
+        if (!$this->configured) {
+            parent::configureIO($input, $output);
+        }
     }
 }

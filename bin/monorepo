@@ -50,9 +50,6 @@ try {
     $output     = $container->get('monorepo.output');
     $app        = $container->get('monorepo.app');
 
-    // @TODO: set this within application
-    $output->setVerbosity(\Symfony\Component\Console\Output\OutputInterface::VERBOSITY_VERY_VERBOSE);
-
     $factory->compileConfig();
     exit($app->run($input, $output));
 } catch (\Exception $e) {
