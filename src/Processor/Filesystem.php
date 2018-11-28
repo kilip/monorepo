@@ -106,6 +106,7 @@ class Filesystem
         }
 
         foreach ($subjects as $subject) {
+            $subject = (string) $subject;
             $subject = strtr($subject, [
                 getcwd()       => '$CWD',
                 getenv('HOME') => '$HOME',
