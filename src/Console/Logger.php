@@ -179,7 +179,11 @@ class Logger extends AbstractLogger
             $replacements[$key] = '<fg=yellow;options=bold;>'.$replacement.'</>';
         }
         $message = strtr($message, $replacements);
-        $message = str_replace(getcwd(), '.', $message);
+        //$message = str_replace(getcwd(), '.', $message);
+        $message = strtr($message, [
+            getcwd()       => '$CWD',
+            getenv('HOME') => '$HOME',
+        ]);
 
         return $message;
     }

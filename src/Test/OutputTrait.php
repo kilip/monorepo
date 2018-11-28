@@ -55,6 +55,7 @@ trait OutputTrait
         if (!\is_object($this->output)) {
             $stream       = fopen('php://memory', 'wb', false);
             $this->output = new StreamOutput($stream);
+            $this->output->setVerbosity(StreamOutput::VERBOSITY_DEBUG);
         }
 
         return $this->output;
