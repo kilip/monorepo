@@ -162,12 +162,7 @@ class CompileCommand extends AbstractCommand
         $finder->files()
             ->ignoreVCS(true)
             ->ignoreDotFiles(false)
-            ->exclude([
-                'Tests',
-            ])
-            //->notName('Compiler.php')
-            //->notName('SubsplitCommand.php')
-            //->notName('CompilerCommand.php')
+            ->notName('CompileCommand.php')
             ->in($this->baseDir.'/config')
             ->in($this->baseDir.'/src')
             ->sort($finderSort)
