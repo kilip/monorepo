@@ -15,6 +15,6 @@ namespace Monorepo\Command;
 
 use Symfony\Component\Console\Command\Command as BaseCommand;
 
-class AbstractCommand extends BaseCommand
+class AbstractCommand extends BaseCommand implements CommandInterface
 {
 }

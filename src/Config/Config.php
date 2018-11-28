@@ -23,13 +23,6 @@ class Config
     const EVENT_CONFIG_NOT_FOUND = 'config.config_not_found';
 
     /**
-     * Project lists.
-     *
-     * @var Project[]
-     */
-    private $config;
-
-    /**
      * @var EventDispatcher
      */
     private $dispatcher;
@@ -38,6 +31,13 @@ class Config
      * @var Logger
      */
     private $logger;
+
+    /**
+     * Project lists.
+     *
+     * @var Project[]
+     */
+    private $projects;
 
     public function __construct(EventDispatcher $dispatcher, Logger $logger)
     {
@@ -48,31 +48,9 @@ class Config
     /**
      * @return Project[]
      */
-    public function getConfig(): array
+    public function getProjects(): array
     {
-        return $this->config;
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return Project
-     */
-    public function getProject($name)
-    {
-        if (!isset($this->config[$name])) {
-            throw new InvalidArgumentException(sprintf('Project "%s" not exist.', $name));
-        }
-
-        return $this->config[$name];
-    }
-
-    /**
-     * @return Project[]
-     */
-    public function getProjects()
-    {
-        return $this->config;
+        return $this->projects;
     }
 
     /**
@@ -93,7 +71,7 @@ class Config
             $name          = $item['name'];
             $config[$name] = new Project($name, $item);
         }
-        $this->config = $config;
+        $this->projects = $config;
     }
 
     /**
@@ -120,11 +98,11 @@ class Config
     }
 
     /**
-     * @param array $config
+     * @param array $projects
      */
-    public function setConfig($config)
+    public function setProjects($projects)
     {
-        $this->config = $config;
+        $this->projects = $projects;
     }
 
     /**
@@ -136,8 +114,12 @@ class Config
      */
     private function validate($contents)
     {
-        $schemaFile = realpath(__DIR__.'/../../config/schema.json');
-        $schema     = (object) ['$ref' => 'file://'.$schemaFile];
+        $schemaFile = __DIR__.'/../../config/schema.json';
+
+        if (!strpos(__FILE__, 'phar:///')) {
+            $schemaFile = 'file://'.$schemaFile;
+        }
+        $schema     = (object) ['$ref' => $schemaFile];
         $validator  = new Validator();
         $logger     = $this->logger;
         $json       = json_decode($contents);

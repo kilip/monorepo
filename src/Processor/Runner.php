@@ -48,9 +48,13 @@ class Runner
         $logger->command('{0} cwd: {1}', [$command, $cwd]);
 
         // @codeCoverageIgnoreStart
-        $process->run(function ($type, $buffer) use ($logger) {
+        $process->run(function ($type, $buffer) use ($logger, $command) {
             $method = 'commandOutput';
-            if (Process::ERR === $type) {
+            if (
+                Process::ERR === $type
+                && false !== strpos($command, 'splitsh')
+                && false !== strpos($command, 'git')
+            ) {
                 $method = 'error';
             }
 

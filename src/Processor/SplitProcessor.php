@@ -20,10 +20,8 @@ use Monorepo\Command\SplitCommand;
 use Monorepo\Config\Config;
 use Monorepo\Config\Project;
 use Monorepo\Console\Logger;
-use Monorepo\Exception\CommandException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Process\ExecutableFinder;
 
 class SplitProcessor implements EventSubscriberInterface
 {
@@ -72,8 +70,6 @@ class SplitProcessor implements EventSubscriberInterface
 
     public function onSplit()
     {
-        $splitsh = $this->splitsh;
-        $runner  = $this->runner;
         $config  = $this->config;
 
         foreach ($config->getProjects() as $project) {
@@ -82,38 +78,23 @@ class SplitProcessor implements EventSubscriberInterface
     }
 
     /**
-     * @throws CommandException when Splitsh executable is not found
+     * @codeCoverageIgnore
      */
     private function configure()
     {
-        $dirs = [
-            // in development vendor dir
-            __DIR__.'/../../vendor/bin',
-
-            // in vendor mode bin dir
-            __DIR__.'/../../../bin',
-
-            // in library bin dir,
-            __DIR__.'/../../../../bin',
-        ];
-        $execFinder = new ExecutableFinder();
-        $file       = $execFinder->find('splitsh', null, $dirs);
-
-        if (!is_file($file)) {
-            throw new CommandException(
-                sprintf('Can\'t find "splitsh" executable file.')
-            );
-        }
-        $this->splitsh = realpath($file);
+        $file          = __DIR__.'/../../vendor/toni/splitsh/bin/splitsh';
+        $this->splitsh = $file;
     }
 
     private function processProject(Project $project)
     {
+        $logger = $this->logger;
         $this->logger->info('processing {0}', [$project->getName()]);
 
         /* @TODO: make directory configurable */
-        $cwd = getcwd().'/var/projects/'.$project->getName();
+        $cwd = getcwd().'/.monorepo/'.$project->getName();
         if (!is_dir($cwd)) {
+            $logger->info('cloning from {0} into {1}', [$project->getOrigin(), $cwd]);
             $repo = Admin::cloneRepository($cwd, $project->getOrigin());
         } else {
             $repo = new Repository($cwd);
@@ -123,16 +104,12 @@ class SplitProcessor implements EventSubscriberInterface
         $logger   = $this->logger;
         $runner   = $this->runner;
 
-        $repo->setLogger($logger);
+        //$repo->setLogger($logger);
         /* @var Branch $branch */
-        foreach ($repo->getReferences()->getBranches() as $branch) {
-            $branchName = $branch->getName();
-            if (!\in_array($branchName, $branches)) {
-                continue;
-            }
-            $logger->info('processing branch {0}', [$branchName]);
+        foreach ($branches as $branchName) {
             $repo->run('checkout', ['-q', $branchName]);
-
+            $repo->run('pull', ['origin', $branchName]);
+            $logger->info('processing branch {0}', [$branchName]);
             foreach ($project->getPrefixes() as $prefix) {
                 $key          = $prefix['key'];
                 $name         = substr($key, stripos($key, '/') + 1);

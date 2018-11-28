@@ -43,14 +43,19 @@ use Monorepo\ApplicationFactory;
 
 try {
     /* @var \Monorepo\Console\Application $app */
+    /* @var \Symfony\Component\Console\Output\OutputInterface $output */
     $factory    = new ApplicationFactory();
     $container  = $factory->boot()->getContainer();
     $input      = $container->get('monorepo.input');
     $output     = $container->get('monorepo.output');
-    $app        = $factory->getContainer()->get('monorepo.app');
+    $app        = $container->get('monorepo.app');
 
+    // @TODO: set this within application
+    $output->setVerbosity(\Symfony\Component\Console\Output\OutputInterface::VERBOSITY_VERY_VERBOSE);
+
+    $factory->compileConfig();
     exit($app->run($input, $output));
 } catch (\Exception $e) {
-    echo $e->getMessage();
+    $app->renderException($e, $output);
     exit(1);
 }

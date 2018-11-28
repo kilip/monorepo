@@ -36,69 +36,11 @@ class ApplicationFactory
     public function boot(): self
     {
         $this->compileContainer();
-        $this->compileConfig();
 
         return $this;
     }
 
-    /**
-     * @param string $cacheDir
-     * @param string $configFile
-     *
-     * @return mixed|Config
-     *
-     * @throws \Exception
-     */
-    public function compileConfigFile($cacheDir, $configFile)
-    {
-        /* @var Logger $logger */
-        /* @var EventDispatcher $dispatcher */
-        /* @var Config $config */
-
-        $container     = $this->container;
-        $logger        = $container->get('monorepo.logger');
-        $config        = $container->get('monorepo.config');
-        $id            = crc32($configFile);
-        $configFile    = realpath($configFile);
-        $cacheFileName = $cacheDir.\DIRECTORY_SEPARATOR.$id.'.dat';
-        $env           = self::getEnv();
-        $cache         = new ConfigCache($cacheFileName, 'test' === $env);
-
-        if (!is_dir($cacheDir)) {
-            mkdir($cacheDir, 0777, true);
-        }
-
-        if (!$cache->isFresh()) {
-            $logger->debug('compiling config file {0}', [$configFile]);
-            $config->parseFile($configFile);
-            $resources = [
-                new FileResource($configFile),
-            ];
-            $content = serialize($config->getConfig());
-            $cache->write($content, $resources);
-            $logger->debug('writing config file to {0}', [$cacheFileName]);
-        } else {
-            $logger->debug('loading config cache from "{0}"', [$id.'.dat']);
-            $cacheContents = file_get_contents($cacheFileName);
-            $unserialized  = unserialize($cacheContents);
-            $config->setConfig($unserialized);
-        }
-    }
-
-    /**
-     * @return Container
-     */
-    public function getContainer(): Container
-    {
-        return $this->container;
-    }
-
-    public static function getEnv()
-    {
-        return getenv('MONOREPO_ENV');
-    }
-
-    private function compileConfig()
+    public function compileConfig()
     {
         $env        = self::getEnv();
         $container  = $this->container;
@@ -135,6 +77,63 @@ class ApplicationFactory
         if (null !== $configFile) {
             $this->compileConfigFile($cacheDir, $configFile);
         }
+    }
+
+    /**
+     * @param string $cacheDir
+     * @param string $configFile
+     *
+     * @return mixed|Config
+     *
+     * @throws \Exception
+     */
+    public function compileConfigFile($cacheDir, $configFile)
+    {
+        /* @var Logger $logger */
+        /* @var EventDispatcher $dispatcher */
+        /* @var Config $config */
+
+        $container     = $this->container;
+        $logger        = $container->get('monorepo.logger');
+        $config        = $container->get('monorepo.config');
+        $id            = crc32($configFile);
+        $configFile    = realpath($configFile);
+        $cacheFileName = $cacheDir.\DIRECTORY_SEPARATOR.$id.'.dat';
+        $env           = self::getEnv();
+        $cache         = new ConfigCache($cacheFileName, 'test' === $env);
+
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir, 0777, true);
+        }
+
+        if (!$cache->isFresh()) {
+            $logger->debug('compiling config file {0}', [$configFile]);
+            $config->parseFile($configFile);
+            $resources = [
+                new FileResource($configFile),
+            ];
+            $content = serialize($config->getProjects());
+            $cache->write($content, $resources);
+            $logger->debug('writing config file to {0}', [$cacheFileName]);
+        } else {
+            $logger->debug('loading config cache from "{0}"', [$id.'.dat']);
+            $cacheContents = file_get_contents($cacheFileName);
+            $unserialized  = unserialize($cacheContents);
+            $config->setProjects($unserialized);
+        }
+    }
+
+    /**
+     * @return Container
+     */
+    public function getContainer(): Container
+    {
+        return $this->container;
+    }
+
+    public static function getEnv()
+    {
+        return getenv('MONOREPO_ENV');
     }
 
     private function compileContainer()
@@ -177,7 +176,7 @@ class ApplicationFactory
 
     private function processConfig(ContainerBuilder $builder)
     {
-        $config  = realpath(__DIR__.'/../config');
+        $config  = __DIR__.'/../config';
         $locator = new FileLocator($config);
         $loader  = new YamlFileLoader($builder, $locator);
 

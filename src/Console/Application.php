@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Monorepo\Console;
 
+use Monorepo\Command\CompileCommand;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -45,6 +46,23 @@ class Application extends BaseApplication
                 InputOption::VALUE_NONE,
                 'Do not do real change, just show debug output only'
             ),
+        ]);
+
+        $inPhar = getenv('MONOREPO_PHAR_MODE');
+        if (1 !== $inPhar) {
+            $this->add(new CompileCommand());
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLongVersion()
+    {
+        return implode(' ', [
+            static::VERSION,
+            static::BRANCH_ALIAS_VERSION,
+            static::RELEASE_DATE,
         ]);
     }
 }
