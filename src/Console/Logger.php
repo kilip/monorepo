@@ -24,7 +24,7 @@ class Logger extends AbstractLogger
     public const INFO       = 'info';
     public const OUT        = 'out';
     private $errored        = false;
-    private $formatLevelMap = array(
+    private $formatLevelMap = [
         LogLevel::EMERGENCY => self::INFO,
         LogLevel::ALERT     => self::INFO,
         LogLevel::CRITICAL  => self::INFO,
@@ -35,11 +35,11 @@ class Logger extends AbstractLogger
         LogLevel::DEBUG     => self::INFO,
         LogLevel::CMD       => self::INFO,
         LogLevel::OUT       => self::INFO,
-    );
+    ];
 
     private $output;
 
-    private $verbosityLevelMap = array(
+    private $verbosityLevelMap = [
         LogLevel::EMERGENCY => OutputInterface::VERBOSITY_NORMAL,
         LogLevel::ALERT     => OutputInterface::VERBOSITY_NORMAL,
         LogLevel::CRITICAL  => OutputInterface::VERBOSITY_NORMAL,
@@ -50,21 +50,21 @@ class Logger extends AbstractLogger
         LogLevel::DEBUG     => OutputInterface::VERBOSITY_VERY_VERBOSE,
         LogLevel::CMD       => OutputInterface::VERBOSITY_NORMAL,
         LogLevel::OUT       => OutputInterface::VERBOSITY_NORMAL,
-    );
+    ];
 
-    public function __construct(OutputInterface $output, array $verbosityLevelMap = array(), array $formatLevelMap = array())
+    public function __construct(OutputInterface $output, array $verbosityLevelMap = [], array $formatLevelMap = [])
     {
         $this->output            = $output;
         $this->verbosityLevelMap = $verbosityLevelMap + $this->verbosityLevelMap;
         $this->formatLevelMap    = $formatLevelMap + $this->formatLevelMap;
     }
 
-    public function command($message, array $context = array())
+    public function command($message, array $context = [])
     {
         $this->log(LogLevel::CMD, $message, $context);
     }
 
-    public function commandOutput($message, array $context = array())
+    public function commandOutput($message, array $context = [])
     {
         $this->log(LogLevel::OUT, $message, $context);
     }
@@ -82,7 +82,7 @@ class Logger extends AbstractLogger
     /**
      * {@inheritdoc}
      */
-    public function log($level, $message, array $context = array())
+    public function log($level, $message, array $context = [])
     {
         if (!isset($this->verbosityLevelMap[$level])) {
             throw new \InvalidArgumentException(sprintf('The log level "%s" does not exist.', $level));
@@ -119,19 +119,19 @@ class Logger extends AbstractLogger
      */
     private function getLevelFormat($level)
     {
-        $colorMap = array(
+        $colorMap = [
             'info'  => 'white',
             'cmd'   => 'yellow',
             'error' => 'red',
             'out'   => 'yellow',
             'WRN'   => 'yellow',
             'DBG'   => 'white',
-        );
+        ];
 
-        $levelMap = array(
+        $levelMap = [
             'warning' => 'WRN',
             'debug'   => 'DBG',
-        );
+        ];
 
         if (isset($levelMap[$level])) {
             $level = $levelMap[$level];
@@ -162,7 +162,7 @@ class Logger extends AbstractLogger
             return $message;
         }
 
-        $replacements = array();
+        $replacements = [];
         foreach ($context as $key => $val) {
             if (null === $val || is_scalar($val) || (\is_object($val) && method_exists($val, '__toString'))) {
                 $replacements["{{$key}}"] = $val;

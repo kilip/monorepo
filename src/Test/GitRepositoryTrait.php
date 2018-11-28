@@ -51,10 +51,10 @@ trait GitRepositoryTrait
         Admin::init($target);
         $tempRepo = Admin::init($tempDir, false);
         $fs->mirror($fixturesDir, $tempRepo->getWorkingDir());
-        $tempRepo->run('add', array('.', '-A'));
-        $tempRepo->run('commit', array('-am', '"initial commit"'));
-        $tempRepo->run('remote', array('add', 'origin', $target));
-        $tempRepo->run('push', array('-u', 'origin', 'master'));
+        $tempRepo->run('add', ['.', '-A']);
+        $tempRepo->run('commit', ['-am', '"initial commit"']);
+        $tempRepo->run('remote', ['add', 'origin', $target]);
+        $tempRepo->run('push', ['-u', 'origin', 'master']);
 
         return $target;
     }

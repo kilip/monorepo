@@ -98,18 +98,18 @@ JSON;
 
     public function getTestParseFile()
     {
-        return array(
+        return [
             // root 1 tests
-            array('getBranches', 'root1', array('master', 'develop')),
-            array('getOrigin', 'root1', 'root1/.git'),
-            array('getName', 'root1', 'root1'),
+            ['getBranches', 'root1', ['master', 'develop']],
+            ['getOrigin', 'root1', 'root1/.git'],
+            ['getName', 'root1', 'root1'],
 
             // root 2 tests
-            array('getBranches', 'root2', 'master'),
-            array('getIgnoredTags', 'root2', 'v1.0.*'),
-            array('getOrigin', 'root2', 'root2/.git'),
-            array('getName', 'root2', 'root2'),
-        );
+            ['getBranches', 'root2', 'master'],
+            ['getIgnoredTags', 'root2', 'v1.0.*'],
+            ['getOrigin', 'root2', 'root2/.git'],
+            ['getName', 'root2', 'root2'],
+        ];
     }
 
     public function testGetProjects()
@@ -149,10 +149,10 @@ JSON;
         $config->parseFile($file);
 
         $project = $config->getProject($project);
-        $return  = \call_user_func_array(array($project, $method), array($project));
+        $return  = \call_user_func_array([$project, $method], [$project]);
 
         if (!\is_array($expected)) {
-            $expected = array($expected);
+            $expected = [$expected];
         }
 
         foreach ($expected as $item) {

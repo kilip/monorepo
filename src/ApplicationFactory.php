@@ -73,7 +73,7 @@ class ApplicationFactory
             $builder->compile(true);
             $dumper = new PhpDumper($builder);
             $cache->write(
-                $dumper->dump(array('class' => $className)),
+                $dumper->dump(['class' => $className]),
                 $builder->getResources()
             );
         }

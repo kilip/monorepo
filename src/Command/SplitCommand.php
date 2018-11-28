@@ -83,13 +83,13 @@ EOC;
         $dispatcher = $this->dispatcher;
         $logger     = $this->logger;
 
-        $logger->debug('dispatching event {0}', array(self::SPLIT_EVENT_PRE));
+        $logger->debug('dispatching event {0}', [self::SPLIT_EVENT_PRE]);
         $dispatcher->dispatch(self::SPLIT_EVENT_PRE);
 
-        $logger->debug('dispatching event {0}', array(self::SPLIT_EVENT));
+        $logger->debug('dispatching event {0}', [self::SPLIT_EVENT]);
         $dispatcher->dispatch(self::SPLIT_EVENT);
 
-        $logger->debug('dispatching event {0}', array(self::SPLIT_EVENT_POST));
+        $logger->debug('dispatching event {0}', [self::SPLIT_EVENT_POST]);
         $dispatcher->dispatch(self::SPLIT_EVENT_POST);
     }
 }

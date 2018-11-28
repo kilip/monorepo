@@ -45,7 +45,7 @@ class Runner
         $logger  = $this->logger;
         $cwd     = $process->getWorkingDirectory();
 
-        $logger->command('{0} cwd: {1}', array($command, $cwd));
+        $logger->command('{0} cwd: {1}', [$command, $cwd]);
 
         // @codeCoverageIgnoreStart
         $process->run(function ($type, $buffer) use ($logger) {
@@ -57,7 +57,7 @@ class Runner
             $exp = explode(PHP_EOL, $buffer);
             foreach ($exp as $item) {
                 if ('' !== trim($item)) {
-                    \call_user_func(array($logger, $method), $item);
+                    \call_user_func([$logger, $method], $item);
                 }
             }
         });

@@ -31,8 +31,8 @@ class DefaultPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         $ids         = $container->getServiceIds();
-        $commands    = array();
-        $subscribers = array();
+        $commands    = [];
+        $subscribers = [];
 
         foreach ($ids as $id) {
             $definition = $container->findDefinition($id);
@@ -76,11 +76,11 @@ class DefaultPass implements CompilerPassInterface
         $dispatcher = $container->findDefinition(EventDispatcher::class);
 
         foreach ($commands as $class) {
-            $app->addMethodCall('add', array(new Reference($class)));
+            $app->addMethodCall('add', [new Reference($class)]);
         }
 
         foreach ($subscribers as $class) {
-            $dispatcher->addMethodCall('addSubscriber', array(new Reference($class)));
+            $dispatcher->addMethodCall('addSubscriber', [new Reference($class)]);
         }
     }
 }

@@ -38,17 +38,17 @@ class SplitCommandTest extends CommandTestCase
         $logger->expects($this->exactly(3))
             ->method('debug')
             ->withConsecutive(
-                array('dispatching event {0}', array(SplitCommand::SPLIT_EVENT_PRE)),
-                array('dispatching event {0}', array(SplitCommand::SPLIT_EVENT)),
-                array('dispatching event {0}', array(SplitCommand::SPLIT_EVENT_POST))
+                ['dispatching event {0}', [SplitCommand::SPLIT_EVENT_PRE]],
+                ['dispatching event {0}', [SplitCommand::SPLIT_EVENT]],
+                ['dispatching event {0}', [SplitCommand::SPLIT_EVENT_POST]]
             );
 
         $dispatcher->expects($this->exactly(3))
             ->method('dispatch')
             ->withConsecutive(
-                array(SplitCommand::SPLIT_EVENT_PRE),
-                array(SplitCommand::SPLIT_EVENT),
-                array(SplitCommand::SPLIT_EVENT_POST)
+                [SplitCommand::SPLIT_EVENT_PRE],
+                [SplitCommand::SPLIT_EVENT],
+                [SplitCommand::SPLIT_EVENT_POST]
             );
 
         $target = new SplitCommand($logger, $dispatcher);

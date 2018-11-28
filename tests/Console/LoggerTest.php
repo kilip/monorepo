@@ -44,24 +44,24 @@ class LoggerTest extends TestCase
     {
         $dateTime = new \DateTime();
 
-        return array(
-            array('debug', 'debug message', array(), 'debug message'),
-            array('debug', 'debug param {0}', array('foo'), 'debug param foo'),
-            array('command', 'command param {0}', array('foo'), array('CMD', 'param foo')),
-            array(
+        return [
+            ['debug', 'debug message', [], 'debug message'],
+            ['debug', 'debug param {0}', ['foo'], 'debug param foo'],
+            ['command', 'command param {0}', ['foo'], ['CMD', 'param foo']],
+            [
                 'info',
                 'info param {0} object {1}',
-                array($dateTime, $this),
-                array(
+                [$dateTime, $this],
+                [
                     'INF',
                     'param '.$dateTime->format('Y-m-d'),
                     '[object '.\get_class($this).']',
-                ),
-            ),
-            array('commandOutput', 'command output', array(), 'command output'),
-            array('error', 'command error', array(), 'command error'),
-            array('notice', 'notice', array(), array('INF', 'notice')),
-        );
+                ],
+            ],
+            ['commandOutput', 'command output', [], 'command output'],
+            ['error', 'command error', [], 'command error'],
+            ['notice', 'notice', [], ['INF', 'notice']],
+        ];
     }
 
     public function testError()
@@ -90,10 +90,10 @@ class LoggerTest extends TestCase
     {
         $this->getOutput()->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
 
-        \call_user_func_array(array($this->logger, $method), array($message, $context));
+        \call_user_func_array([$this->logger, $method], [$message, $context]);
 
         if (!\is_array($expectedMessage)) {
-            $expectedMessage = array($expectedMessage);
+            $expectedMessage = [$expectedMessage];
         }
         $display = $this->getDisplay(true);
         foreach ($expectedMessage as $item) {

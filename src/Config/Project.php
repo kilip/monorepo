@@ -37,11 +37,11 @@ class Project
         $name,
         $config
     ) {
-        $default = array(
-            'ignored-tags' => array(),
-            'tags'         => array(),
-            'branches'     => array('master'),
-        );
+        $default = [
+            'ignored-tags' => [],
+            'tags'         => [],
+            'branches'     => ['master'],
+        ];
 
         $this->logger = $logger;
         $config       = array_merge($default, $config);

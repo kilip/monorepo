@@ -27,46 +27,46 @@ if (!file_exists(__DIR__.'/src')) {
 $finder = \Symfony\Component\Finder\Finder::create();
 
 return PhpCsFixer\Config::create()
-    ->setRules(array(
+    ->setRules([
         '@Symfony'                           => true,
         '@Symfony:risky'                     => true,
         '@PHPUnit60Migration:risky'          => true,
         'php_unit_no_expectation_annotation' => false, // part of `PHPUnitXYMigration:risky` ruleset, to be enabled when PHPUnit 4.x support will be dropped, as we don't want to rewrite exceptions handling twice
-        'array_syntax'                       => array('syntax' => 'long'),
+        'array_syntax'                       => ['syntax' => 'short'],
         'protected_to_private'               => false,
         '@PSR1'                              => true,
         '@PSR2'                              => true,
         '@PHP70Migration'                    => true,
         '@PHP70Migration:risky'              => true,
         'align_multiline_comment'            => true,
-        'ordered_imports'                    => array('sortAlgorithm' => 'alpha'),
-        'header_comment'                     => array('header' => $header),
+        'ordered_imports'                    => ['sortAlgorithm' => 'alpha'],
+        'header_comment'                     => ['header' => $header],
         'heredoc_to_nowdoc'                  => true,
-        'ordered_class_elements'             => array('sortAlgorithm' => 'alpha'),
+        'ordered_class_elements'             => ['sortAlgorithm' => 'alpha'],
         'method_separation'                  => true,
-        'no_extra_blank_lines'               => array('tokens' => array('break', 'continue', 'extra', 'return', 'throw', 'use', 'parenthesis_brace_block', 'square_brace_block', 'curly_brace_block')),
+        'no_extra_blank_lines'               => ['tokens' => ['break', 'continue', 'extra', 'return', 'throw', 'use', 'parenthesis_brace_block', 'square_brace_block', 'curly_brace_block']],
         'blank_line_before_statement'        => true,
 
         // Symfony overwritings
-        'binary_operator_spaces' => array(
+        'binary_operator_spaces' => [
             'align_double_arrow' => true,
             'align_equals'       => true,
-        ),
-    ))
+        ],
+    ])
     ->setRiskyAllowed(true)
     ->setFinder(
         PhpCsFixer\Finder::create()
             ->in(__DIR__.'/src')
             ->in(__DIR__.'/tests')
-            ->append(array(
+            ->append([
                 __FILE__,
                 __DIR__.'/bin/monorepo',
-            ))
-            ->exclude(array(
+            ])
+            ->exclude([
                 'var',
                 'config',
                 'build',
                 'fixtures',
-            ))
+            ])
     )
 ;

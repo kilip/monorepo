@@ -32,7 +32,7 @@ class Application extends BaseApplication
 
     private function setup()
     {
-        $this->getDefinition()->addOptions(array(
+        $this->getDefinition()->addOptions([
             new InputOption(
                 'config',
                 '-c',
@@ -45,6 +45,6 @@ class Application extends BaseApplication
                 InputOption::VALUE_NONE,
                 'Do not do real change, just show debug output only'
             ),
-        ));
+        ]);
     }
 }

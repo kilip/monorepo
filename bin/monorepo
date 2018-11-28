@@ -10,11 +10,11 @@
  * file that was distributed with this source code.
  */
 
-$files = array(
+$files = [
     __DIR__.'/../../autoload.php',
     __DIR__.'/../vendor/autoload.php',
     __DIR__.'/vendor/autoload.php',
-);
+];
 
 foreach ($files as $file) {
     if (file_exists($file)) {

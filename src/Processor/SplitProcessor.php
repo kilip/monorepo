@@ -65,9 +65,9 @@ class SplitProcessor implements EventSubscriberInterface
 
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             SplitCommand::SPLIT_EVENT => 'onSplit',
-        );
+        ];
     }
 
     public function onSplit()
@@ -86,7 +86,7 @@ class SplitProcessor implements EventSubscriberInterface
      */
     private function configure()
     {
-        $dirs = array(
+        $dirs = [
             // in development vendor dir
             __DIR__.'/../../vendor/bin',
 
@@ -95,7 +95,7 @@ class SplitProcessor implements EventSubscriberInterface
 
             // in library bin dir,
             __DIR__.'/../../../../bin',
-        );
+        ];
         $execFinder = new ExecutableFinder();
         $file       = $execFinder->find('splitsh', null, $dirs);
 
@@ -109,7 +109,7 @@ class SplitProcessor implements EventSubscriberInterface
 
     private function processProject(Project $project)
     {
-        $this->logger->info('processing {0}', array($project->getName()));
+        $this->logger->info('processing {0}', [$project->getName()]);
 
         /* @TODO: make directory configurable */
         $cwd = getcwd().'/var/projects/'.$project->getName();
@@ -130,8 +130,8 @@ class SplitProcessor implements EventSubscriberInterface
             if (!\in_array($branchName, $branches)) {
                 continue;
             }
-            $logger->info('processing branch {0}', array($branchName));
-            $repo->run('checkout', array('-q', $branchName));
+            $logger->info('processing branch {0}', [$branchName]);
+            $repo->run('checkout', ['-q', $branchName]);
 
             foreach ($project->getPrefixes() as $prefix) {
                 $key          = $prefix['key'];
@@ -139,9 +139,9 @@ class SplitProcessor implements EventSubscriberInterface
                 $target       = "split/${name}";
                 $remoteTarget = $prefix['target'];
                 $runner->run($this->splitsh." --prefix=${key} --target=${target} --progress", $cwd);
-                $repo->run('checkout', array('-q', $target));
-                $repo->run('push', array('-u', $remoteTarget, "{$target}:refs/heads/{$branchName}"));
-                $repo->run('checkout', array('-q', 'master'));
+                $repo->run('checkout', ['-q', $target]);
+                $repo->run('push', ['-u', $remoteTarget, "{$target}:refs/heads/{$branchName}"]);
+                $repo->run('checkout', ['-q', 'master']);
             }
         }
     }

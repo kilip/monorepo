@@ -76,7 +76,7 @@ class Config
      */
     public function parse($contents)
     {
-        $config = array();
+        $config = [];
         $json   = json_decode($contents, true);
 
         if (!$this->validate($contents)) {
@@ -125,7 +125,7 @@ class Config
     private function validate($contents)
     {
         $schemaFile = realpath(__DIR__.'/../../config/schema.json');
-        $schema     = (object) array('$ref' => 'file://'.$schemaFile);
+        $schema     = (object) ['$ref' => 'file://'.$schemaFile];
         $validator  = new Validator();
         $logger     = $this->logger;
         $json       = json_decode($contents);
