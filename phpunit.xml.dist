@@ -18,6 +18,7 @@
             <directory>./src</directory>
             <exclude>
                 <directory>./src/Test</directory>
+                <file>./src/Command/CompileCommand.php</file>
             </exclude>
         </whitelist>
     </filter>
