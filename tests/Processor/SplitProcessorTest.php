@@ -3,7 +3,7 @@
 /*
  * This file is part of the monorepo package.
  *
- *     (c) Anthonius Munthi
+ *     (c) Anthonius Munthi <https://itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -53,8 +53,9 @@ class SplitProcessorTest extends TestCase
         $foo = $this->createEmptyRemote('foo');
         $hello = $this->createEmptyRemote('hello');
         $json = <<<EOC
-{
-    "origin1": {
+[
+    {
+        "name": "origin1", 
         "origin": "{$remote1}",
         "prefixes": [
             {
@@ -67,7 +68,7 @@ class SplitProcessorTest extends TestCase
             }
         ]
     }
-}
+]
 EOC;
 
         $configFile = $this->getTempDir().'/test1.json';

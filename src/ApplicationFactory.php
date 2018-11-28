@@ -5,7 +5,7 @@ declare(strict_types=1);
 /*
  * This file is part of the monorepo package.
  *
- *     (c) Anthonius Munthi
+ *     (c) Anthonius Munthi <https://itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -69,8 +69,8 @@ class ApplicationFactory
 
         if (!$cache->isFresh() || 'test' === getenv('MONOREPO_ENV')) {
             $builder->addCompilerPass(new DefaultPass());
-            $builder->compile(true);
 
+            $builder->compile(true);
             $dumper = new PhpDumper($builder);
             $cache->write(
                 $dumper->dump(array('class' => $className)),

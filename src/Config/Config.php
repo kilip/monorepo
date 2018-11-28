@@ -3,7 +3,7 @@
 /*
  * This file is part of the monorepo package.
  *
- *     (c) Anthonius Munthi
+ *     (c) Anthonius Munthi <https://itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,6 +11,7 @@
 
 namespace Monorepo\Config;
 
+use JsonSchema\Validator;
 use Monorepo\Console\Logger;
 
 class Config
@@ -23,7 +24,7 @@ class Config
     private $config;
 
     /**
-     * Json config file to use.
+     * monorepo.json file to use.
      *
      * @var string
      */
@@ -67,22 +68,23 @@ class Config
     }
 
     /**
-     * @param string Json format contents
+     * @param string $contents Json format contents
      *
      * @throws \InvalidArgumentException if file not exists or unreadable
      */
     public function parse($contents)
     {
-        $json = json_decode($contents, true);
-        if (json_last_error()) {
-            throw new \InvalidArgumentException(json_last_error_msg());
-        }
-
         $config = array();
-        foreach ($json as $name => $value) {
-            $config[$name] = new Project($this->logger, $name, $value);
+        $json = json_decode($contents, true);
+
+        if (!$this->validate($contents)) {
+            throw new \InvalidArgumentException('Monorepo config is not valid. Please check previous error!');
         }
 
+        foreach ($json as $item) {
+            $name = $item['name'];
+            $config[$name] = new Project($this->logger, $name, $item);
+        }
         $this->config = $config;
     }
 
@@ -109,5 +111,29 @@ class Config
         }
 
         $this->configFile = $file;
+    }
+
+    /**
+     * Validate contents.
+     *
+     * @param string $contents
+     *
+     * @return bool
+     */
+    private function validate($contents)
+    {
+        $schemaFile = realpath(__DIR__.'/../../config/schema.json');
+        $schema = (object) array('$ref' => 'file://'.$schemaFile);
+        $validator = new Validator();
+        $logger = $this->logger;
+        $json = json_decode($contents);
+
+        $validator->validate($json, $schema);
+        foreach ($validator->getErrors() as $error) {
+            $message = sprintf('[%s] %s', $error['property'], $error['message']);
+            $logger->error($message);
+        }
+
+        return $validator->isValid();
     }
 }

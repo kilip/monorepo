@@ -3,7 +3,7 @@
 /*
  * This file is part of the monorepo package.
  *
- *     (c) Anthonius Munthi
+ *     (c) Anthonius Munthi <https://itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -51,9 +51,10 @@ class ConfigTest extends TestCase
     public function generateJsonConfig1()
     {
         $tmpDir = $this->tmpDir;
-        $json = <<<EOC
-{
-    "root1": {
+        $json = <<<'JSON'
+[
+    {
+        "name": "root1",
         "origin": "{$tmpDir}/root1/.git",
         "prefixes": [
             {
@@ -67,7 +68,8 @@ class ConfigTest extends TestCase
         ],
         "branches": ["develop","master"]
     },
-    "root2": {
+    {
+        "name": "root2",
         "origin": "{$tmpDir}/root2/.git",
         "prefixes": [
             {
@@ -81,8 +83,8 @@ class ConfigTest extends TestCase
         ],
         "ignored-tags": "v1.0.*"
     }
-}
-EOC;
+]
+JSON;
 
         $file = $tmpDir.'/test1.json';
         $tmpDir = sys_get_temp_dir().'/monorepo/tests';
@@ -145,9 +147,9 @@ EOC;
         $config->parseFile($file);
 
         $project = $config->getProject($project);
-        $return = call_user_func_array(array($project, $method), array($project));
+        $return = \call_user_func_array(array($project, $method), array($project));
 
-        if (!is_array($expected)) {
+        if (!\is_array($expected)) {
             $expected = array($expected);
         }
 
@@ -187,7 +189,37 @@ EOC;
         file_put_contents($file, '{"foo":}', LOCK_EX);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Error reading config from "'.$file.'". Error message: "Syntax error"');
+
         $config->parseFile($file);
+    }
+
+    public function testValidate()
+    {
+        $json = <<<'JSON'
+[
+    {
+        "name": "project1",
+        "origin": "git@github.com",
+        "prefixes": [
+            {
+                "key": "src/foo",
+                "target": "foo"
+            },
+            {
+                "key": "src/bar",
+                "target": "bar"
+            }
+         ],
+         "ignore-tags": "v1.0.*"
+    }
+]
+JSON;
+
+        $config = new Config($this->logger);
+        $config->parse($json);
+
+        $project = $config->getProject('project1');
+
+        $this->assertEquals('project1', $project->getName());
     }
 }
