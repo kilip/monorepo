@@ -13,10 +13,15 @@ declare(strict_types=1);
 
 namespace Monorepo;
 
+use Monorepo\Config\Config;
+use Monorepo\Console\Logger;
 use Monorepo\DI\Compiler\DefaultPass;
-use Psr\Container\ContainerInterface;
+use Monorepo\Event\ConfigEvent;
+use Monorepo\Event\EventDispatcher;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -24,40 +29,121 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 class ApplicationFactory
 {
     /**
-     * @var ContainerInterface
+     * @var Container
      */
-    private $container;
+    protected $container;
 
     public function boot(): self
     {
         $this->compileContainer();
+        $this->compileConfig();
 
         return $this;
     }
 
     /**
-     * @return ContainerInterface
+     * @param string $cacheDir
+     * @param string $configFile
+     *
+     * @return mixed|Config
+     *
+     * @throws \Exception
      */
-    public function getContainer(): ContainerInterface
+    public function compileConfigFile($cacheDir, $configFile)
+    {
+        /* @var Logger $logger */
+        /* @var EventDispatcher $dispatcher */
+        /* @var Config $config */
+
+        $container     = $this->container;
+        $logger        = $container->get('monorepo.logger');
+        $config        = $container->get('monorepo.config');
+        $id            = crc32($configFile);
+        $configFile    = realpath($configFile);
+        $cacheFileName = $cacheDir.\DIRECTORY_SEPARATOR.$id.'.dat';
+        $env           = self::getEnv();
+        $cache         = new ConfigCache($cacheFileName, 'test' === $env);
+
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir, 0777, true);
+        }
+
+        if (!$cache->isFresh()) {
+            $logger->debug('compiling config file {0}', [$configFile]);
+            $config->parseFile($configFile);
+            $resources = [
+                new FileResource($configFile),
+            ];
+            $content = serialize($config->getConfig());
+            $cache->write($content, $resources);
+            $logger->debug('writing config file to {0}', [$cacheFileName]);
+        } else {
+            $logger->debug('loading config cache from "{0}"', [$id.'.dat']);
+            $cacheContents = file_get_contents($cacheFileName);
+            $unserialized  = unserialize($cacheContents);
+            $config->setConfig($unserialized);
+        }
+    }
+
+    /**
+     * @return Container
+     */
+    public function getContainer(): Container
     {
         return $this->container;
     }
 
-    protected function getContainerId()
+    public static function getEnv()
     {
-        global $argv;
-        $command = $argv[0];
+        return getenv('MONOREPO_ENV');
+    }
 
-        return crc32($command);
+    private function compileConfig()
+    {
+        $env        = self::getEnv();
+        $container  = $this->container;
+        $dispatcher = $container->get('monorepo.dispatcher');
+        $logger     = $container->get('monorepo.logger');
+        $event      = new ConfigEvent();
+        $cacheDir   = getenv('HOME').'/.monorepo/cache';
+
+        $files = [
+            getcwd().'/.monorepo.json',
+            getcwd().'/monorepo.json',
+        ];
+
+        $configFile = null;
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                $configFile = $file;
+
+                break;
+            }
+        }
+
+        if ('test' === $env) {
+            $cacheDir = getcwd().'/var/cache';
+        }
+
+        if (null === $configFile) {
+            $logger->debug('No configuration file found in: {0}', [getcwd()]);
+            $logger->debug('Dispatching event {0}', [Config::EVENT_CONFIG_NOT_FOUND]);
+            $dispatcher->dispatch(Config::EVENT_CONFIG_NOT_FOUND, $event);
+            $configFile = $event->getConfigFile();
+        }
+
+        if (null !== $configFile) {
+            $this->compileConfigFile($cacheDir, $configFile);
+        }
     }
 
     private function compileContainer()
     {
-        $containerId = $this->getContainerId();
-        $cacheDir    = getcwd().'/var/cache/'.$containerId;
+        $env         = getenv('MONOREPO_ENV');
+        $cacheDir    = 'test' === $env ? getcwd().'/var/cache' : getenv('HOME').'/.monorepo/cache';
         $cachePath   = $cacheDir.'/container.php';
-        $cache       = new ConfigCache($cachePath, true);
-        $className   = 'CachedContainer'.$containerId;
+        $cache       = new ConfigCache($cachePath, 'test' === $env);
+        $className   = 'CachedContainer';
         $builder     = new ContainerBuilder();
 
         // @codeCoverageIgnoreStart
@@ -67,9 +153,9 @@ class ApplicationFactory
 
         $this->processConfig($builder);
 
-        if (!$cache->isFresh() || 'test' === getenv('MONOREPO_ENV')) {
+        if (!$cache->isFresh()) {
             $builder->addCompilerPass(new DefaultPass());
-
+            $builder->setParameter('monorepo.cache_dir', $cacheDir);
             $builder->compile(true);
             $dumper = new PhpDumper($builder);
             $cache->write(
@@ -84,6 +170,7 @@ class ApplicationFactory
 
         // @codeCoverageIgnoreEnd
 
+        /* @var \Symfony\Component\DependencyInjection\Container $container */
         $container       = new $className();
         $this->container = $container;
     }

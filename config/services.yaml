@@ -16,9 +16,13 @@ services:
         class: Monorepo\Console\Logger
     monorepo.dispatcher:
         class: Monorepo\Event\EventDispatcher
+    monorepo.config:
+        class: Monorepo\Config\Config
+    monorepo.runner:
+        class: Monorepo\Processor\Runner
 
+    # event subscribers
     Monorepo\Processor\SplitProcessor: ~
-    Monorepo\Processor\Runner: ~
-    Monorepo\Config\Config: ~
+
     # command lists
     Monorepo\Command\SplitCommand: ~

@@ -13,9 +13,7 @@ declare(strict_types=1);
 
 namespace Monorepo\Config;
 
-use Monorepo\Console\Logger;
-
-class Project
+class Project implements \Serializable
 {
     /**
      * @var array
@@ -23,17 +21,11 @@ class Project
     private $config;
 
     /**
-     * @var Logger
-     */
-    private $logger;
-
-    /**
      * @var string
      */
     private $name;
 
     public function __construct(
-        Logger $logger,
         $name,
         $config
     ) {
@@ -43,9 +35,7 @@ class Project
             'branches'     => ['master'],
         ];
 
-        $this->logger = $logger;
         $config       = array_merge($default, $config);
-        $config       = $this->validate($config);
         $this->config = $config;
         $this->name   = $name;
     }
@@ -90,16 +80,21 @@ class Project
         return $this->config['prefixes'];
     }
 
-    private function validate($config)
+    public function serialize()
     {
-        if (
-            isset($config['ignored-tags'])
-            && \is_string($tags = $config['ignored-tags'])
-        ) {
-            $exp                    = explode(' ', $tags);
-            $config['ignored-tags'] = $exp;
-        }
+        return \serialize([
+            'name'   => $this->name,
+            'config' => $this->config,
+        ]);
+    }
 
-        return $config;
+    /**
+     * @param string $serialized
+     */
+    public function unserialize($serialized)
+    {
+        $serialized   = unserialize($serialized);
+        $this->name   = $serialized['name'];
+        $this->config = $serialized['config'];
     }
 }

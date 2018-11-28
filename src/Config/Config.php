@@ -15,9 +15,13 @@ namespace Monorepo\Config;
 
 use JsonSchema\Validator;
 use Monorepo\Console\Logger;
+use Monorepo\Event\EventDispatcher;
+use Monorepo\Exception\InvalidArgumentException;
 
 class Config
 {
+    const EVENT_CONFIG_NOT_FOUND = 'config.config_not_found';
+
     /**
      * Project lists.
      *
@@ -26,25 +30,27 @@ class Config
     private $config;
 
     /**
-     * monorepo.json file to use.
-     *
-     * @var string
+     * @var EventDispatcher
      */
-    private $configFile;
+    private $dispatcher;
 
     /**
      * @var Logger
      */
     private $logger;
 
-    /**
-     * Config constructor.
-     *
-     * @param Logger $logger
-     */
-    public function __construct(Logger $logger)
+    public function __construct(EventDispatcher $dispatcher, Logger $logger)
     {
-        $this->logger = $logger;
+        $this->dispatcher = $dispatcher;
+        $this->logger     = $logger;
+    }
+
+    /**
+     * @return Project[]
+     */
+    public function getConfig(): array
+    {
+        return $this->config;
     }
 
     /**
@@ -55,7 +61,7 @@ class Config
     public function getProject($name)
     {
         if (!isset($this->config[$name])) {
-            throw new \InvalidArgumentException(sprintf('Project "%s" not exist.', $name));
+            throw new InvalidArgumentException(sprintf('Project "%s" not exist.', $name));
         }
 
         return $this->config[$name];
@@ -72,7 +78,7 @@ class Config
     /**
      * @param string $contents Json format contents
      *
-     * @throws \InvalidArgumentException if file not exists or unreadable
+     * @throws InvalidArgumentException if file not exists or unreadable
      */
     public function parse($contents)
     {
@@ -80,12 +86,12 @@ class Config
         $json   = json_decode($contents, true);
 
         if (!$this->validate($contents)) {
-            throw new \InvalidArgumentException('Monorepo config is not valid. Please check previous error!');
+            throw new InvalidArgumentException('Monorepo config is not valid. Please check previous error!');
         }
 
         foreach ($json as $item) {
             $name          = $item['name'];
-            $config[$name] = new Project($this->logger, $name, $item);
+            $config[$name] = new Project($name, $item);
         }
         $this->config = $config;
     }
@@ -96,7 +102,7 @@ class Config
     public function parseFile($file)
     {
         if (!is_file($file) || !is_readable($file)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'The config file "%s" is not exist or unreadable.',
                 $file
             ));
@@ -107,12 +113,18 @@ class Config
         try {
             $this->parse($contents);
         } catch (\Exception $e) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('Error reading config from "%s". Error message: "%s"', $file, $e->getMessage())
             );
         }
+    }
 
-        $this->configFile = $file;
+    /**
+     * @param array $config
+     */
+    public function setConfig($config)
+    {
+        $this->config = $config;
     }
 
     /**

@@ -15,6 +15,7 @@ namespace MonorepoTest\Processor;
 
 use Monorepo\Config\Config;
 use Monorepo\Console\Logger;
+use Monorepo\Event\EventDispatcher;
 use Monorepo\Processor\Runner;
 use Monorepo\Processor\SplitProcessor;
 use Monorepo\Test\GitRepositoryTrait;
@@ -76,10 +77,11 @@ EOC;
         $configFile = $this->getTempDir().'/test1.json';
         file_put_contents($configFile, $json, LOCK_EX);
 
-        $logger = $this->logger;
-        $input  = $this->createMock(InputInterface::class);
-        $runner = new Runner($logger);
-        $config = new Config($logger);
+        $logger     = $this->logger;
+        $input      = $this->createMock(InputInterface::class);
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $runner     = new Runner($logger);
+        $config     = new Config($dispatcher, $logger);
 
         $processor = new SplitProcessor($logger, $input, $runner, $config);
 

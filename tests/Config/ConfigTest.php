@@ -15,7 +15,10 @@ namespace MonorepoTest\Config;
 
 use Monorepo\Config\Config;
 use Monorepo\Console\Logger;
+use Monorepo\Event\EventDispatcher;
+use Monorepo\Test\JsonConfigFileTrait;
 use Monorepo\Test\OutputTrait;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -27,12 +30,22 @@ use PHPUnit\Framework\TestCase;
  */
 class ConfigTest extends TestCase
 {
-    use OutputTrait;
+    use OutputTrait, JsonConfigFileTrait;
+
+    /**
+     * @var MockObject
+     */
+    private $dispatcher;
 
     /**
      * @var Logger
      */
     private $logger;
+
+    /**
+     * @var Config
+     */
+    private $target;
 
     /**
      * @var string
@@ -42,58 +55,13 @@ class ConfigTest extends TestCase
     public function setUp()
     {
         $this->resetOutput();
-
-        $this->logger = new Logger($this->getOutput());
-        $this->tmpDir = sys_get_temp_dir().'/monorepo/tests';
-    }
-
-    /**
-     * @return string Generated json config file name
-     */
-    public function generateJsonConfig1()
-    {
-        $tmpDir = $this->tmpDir;
-        $json   = <<<'JSON'
-[
-    {
-        "name": "root1",
-        "origin": "{$tmpDir}/root1/.git",
-        "prefixes": [
-            {
-                "key": "src/sub1",
-                "target": "{$tmpDir}/sub1/.git" 
-            },
-            {
-                "key": "src/sub2",
-                "target": "{$tmpDir}/sub2/.git"
-            }
-        ],
-        "branches": ["develop","master"]
-    },
-    {
-        "name": "root2",
-        "origin": "{$tmpDir}/root2/.git",
-        "prefixes": [
-            {
-                "key": "lib/sub1",
-                "target": "{$tmpDir}/sub1/.git"
-            },
-            {
-                "key": "lib/sub2",
-                "target": "{$tmpDir}/sub2/.git"
-            }
-        ],
-        "ignored-tags": "v1.0.*"
-    }
-]
-JSON;
-
-        $file   = $tmpDir.'/test1.json';
-        $tmpDir = sys_get_temp_dir().'/monorepo/tests';
-        @mkdir($tmpDir, 0777, true);
-        file_put_contents($file, $json, LOCK_EX);
-
-        return $file;
+        $dispatcher = $this->getMockBuilder(EventDispatcher::class)
+            ->enableProxyingToOriginalMethods()
+            ->getMock()
+        ;
+        $logger             = new Logger($this->getOutput());
+        $this->tmpDir       = sys_get_temp_dir().'/monorepo/tests';
+        $this->configureTarget($dispatcher, $logger);
     }
 
     public function getTestParseFile()
@@ -114,7 +82,7 @@ JSON;
 
     public function testGetProjects()
     {
-        $config = new Config($this->logger);
+        $config = $this->target;
 
         $this->assertEmpty($config->getProjects());
 
@@ -127,7 +95,7 @@ JSON;
 
     public function testGetProjectThrowsException()
     {
-        $config = new Config($this->logger);
+        $config = $this->target;
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Project "foo" not exist.');
@@ -139,12 +107,12 @@ JSON;
     /**
      * @param $method
      * @param $expected
-     * @dataProvider getTestparseFile
+     * @dataProvider getTestParseFile
      */
-    public function testparseFile($method, $project, $expected)
+    public function testParseFile($method, $project, $expected)
     {
         $file   = $this->generateJsonConfig1();
-        $config = new Config($this->logger);
+        $config = $this->target;
 
         $config->parseFile($file);
 
@@ -165,7 +133,7 @@ JSON;
      */
     public function testProjectPrefixes()
     {
-        $config = new Config($this->logger);
+        $config = $this->target;
 
         $config->parseFile($this->generateJsonConfig1());
 
@@ -175,7 +143,7 @@ JSON;
 
     public function testSetConfigThrowsWhenFileNotExists()
     {
-        $config = new Config($this->logger);
+        $config = $this->target;
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('The config file "foo" is not exist or unreadable.');
@@ -185,13 +153,12 @@ JSON;
 
     public function testSetConfigThrowsWithInvalidJson()
     {
-        $config = new Config($this->logger);
+        $config = $this->target;
 
-        $file = $this->generateJsonConfig1();
+        $file = $this->getTempDir().'/foo.json';
         file_put_contents($file, '{"foo":}', LOCK_EX);
 
         $this->expectException(\InvalidArgumentException::class);
-
         $config->parseFile($file);
     }
 
@@ -217,11 +184,20 @@ JSON;
 ]
 JSON;
 
-        $config = new Config($this->logger);
+        $config = $this->target;
         $config->parse($json);
 
         $project = $config->getProject('project1');
 
         $this->assertEquals('project1', $project->getName());
+    }
+
+    private function configureTarget($dispatcher, $logger)
+    {
+        $this->target     = new Config($dispatcher, $logger);
+        $this->dispatcher = $dispatcher;
+        $this->logger     = $logger;
+
+        return $this->target;
     }
 }
