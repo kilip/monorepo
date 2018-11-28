@@ -13,11 +13,6 @@ declare(strict_types=1);
 
 namespace Monorepo\Exception;
 
-/**
- * Class CommandException.
- *
- * @author Anthonius Munthi <https://itstoni.com>
- */
-class CommandException extends \Exception
+class InvalidArgumentException extends \InvalidArgumentException
 {
 }

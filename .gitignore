@@ -1,2 +1,5 @@
-vendor
+/build
+/var
+/vendor
 composer.lock
+.env

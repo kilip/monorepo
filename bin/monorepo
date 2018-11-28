@@ -10,15 +10,16 @@
  * file that was distributed with this source code.
  */
 
-$files = array(
+$files = [
     __DIR__.'/../../autoload.php',
     __DIR__.'/../vendor/autoload.php',
     __DIR__.'/vendor/autoload.php',
-);
+];
 
 foreach ($files as $file) {
     if (file_exists($file)) {
         define('MONOREPO_COMPOSER_INSTALL', $file);
+
         break;
     }
 }
@@ -38,9 +39,26 @@ if (!defined('MONOREPO_COMPOSER_INSTALL')) {
 
 include MONOREPO_COMPOSER_INSTALL;
 
+use Monorepo\ApplicationFactory;
+
 try {
-    $app = new \Monorepo\Application();
-    $app->run();
+    /* @var \Monorepo\Console\Application $app */
+    /* @var \Symfony\Component\Console\Output\ConsoleOutput $output */
+    $factory    = new ApplicationFactory();
+    $container  = $factory->boot()->getContainer();
+    $input      = $container->get('monorepo.input');
+    $output     = $container->get('monorepo.output');
+    $app        = $container->get('monorepo.app');
+
+    $factory->compileConfig();
+    exit($app->run($input, $output));
 } catch (\Exception $e) {
+    if (defined('app')) {
+        $app->renderException($e, $output);
+    } else {
+        $output->writeln(
+            sprintf('<error>%s</error>', $e->getMessage())
+        );
+    }
     exit(1);
 }

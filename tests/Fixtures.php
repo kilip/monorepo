@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the monorepo package.
  *
- *     (c) Anthonius Munthi
+ *     (c) Anthonius Munthi <https://itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -32,12 +34,12 @@ class Fixtures
 
     public function __construct($origin)
     {
-        $origin = realpath($origin);
+        $origin  = realpath($origin);
         $dirname = str_replace(__DIR__.'/fixtures/', '', $origin);
-        $target = sys_get_temp_dir().'/monorepo/'.$dirname;
+        $target  = sys_get_temp_dir().'/monorepo/'.$dirname;
 
-        $this->origin = $origin;
-        $this->target = $target;
+        $this->origin     = $origin;
+        $this->target     = $target;
         $this->filesystem = new Filesystem();
 
         $this->cleanDir($target);
@@ -56,7 +58,7 @@ class Fixtures
 
     public function execute($command, $cwd = null)
     {
-        $cwd = is_null($cwd) ? $this->target : $cwd;
+        $cwd = null === $cwd ? $this->target : $cwd;
         if (!is_dir($cwd)) {
             $this->filesystem->mkdir($cwd);
         }

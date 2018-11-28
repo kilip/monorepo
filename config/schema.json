@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "array",
+  "title": "Monorepo Config",
+  "items": {
+    "$id": "#/items",
+    "type": "object",
+    "title": "Project Schema",
+    "required": [
+      "name",
+      "origin",
+      "prefixes"
+    ],
+    "properties": {
+      "name": {
+        "$id": "#/items/properties/name",
+        "type": "string",
+        "title": "Project Name",
+        "default": "",
+        "examples": [
+          "project1"
+        ],
+        "pattern": "^(.*)$"
+      },
+      "origin": {
+        "$id": "#/items/properties/origin",
+        "type": "string",
+        "title": "Git Remote URL",
+        "default": "",
+        "examples": [
+          "git@github.com:root/project1.git"
+        ],
+        "pattern": "^(.*)$"
+      },
+      "prefixes": {
+        "$id": "#/items/properties/prefixes",
+        "type": "array",
+        "title": "Project Prefixes Schema",
+        "items": {
+          "$id": "#/items/properties/prefixes/items",
+          "type": "object",
+          "title": "The Items Schema",
+          "required": [
+            "key",
+            "target"
+          ],
+          "properties": {
+            "key": {
+              "$id": "#/items/properties/prefixes/items/properties/key",
+              "type": "string",
+              "title": "The Key Schema",
+              "default": "",
+              "examples": [
+                "src/foo"
+              ],
+              "pattern": "^(.*)$"
+            },
+            "target": {
+              "$id": "#/items/properties/prefixes/items/properties/target",
+              "type": "string",
+              "title": "The Target Schema",
+              "default": "",
+              "examples": [
+                "git@github.com:foo/foo.git"
+              ],
+              "pattern": "^(.*)$"
+            }
+          }
+        }
+      },
+      "branches": {
+        "$id": "#/items/properties/branches",
+        "type": ["array"],
+        "title": "The Branches Schema",
+        "default": [],
+        "items": {
+          "$id": "#/items/properties/branches/items",
+          "type": "string",
+          "title": "The Branch Items Schema",
+          "default": "",
+          "examples": [
+            "master",
+            "develop"
+          ],
+          "pattern": "^(.*)$"
+        }
+      },
+      "ignored-tags": {
+        "$id": "#/items/properties/ignored-tags",
+        "type": ["string","null"],
+        "title": "The Ignored-tags Schema",
+        "default": "",
+        "examples": [
+          "v1.0.*"
+        ],
+        "pattern": "^(.*)$"
+      }
+    }
+  }
+}

@@ -11,13 +11,8 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Monorepo\Exception;
+namespace Monorepo\Command;
 
-/**
- * Class CommandException.
- *
- * @author Anthonius Munthi <https://itstoni.com>
- */
-class CommandException extends \Exception
+interface CommandInterface
 {
 }

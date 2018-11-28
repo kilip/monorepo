@@ -11,13 +11,18 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Monorepo\Exception;
+namespace Monorepo\Console;
+
+use Psr\Log\LogLevel as BaseLogLevel;
 
 /**
- * Class CommandException.
+ * Class LogLevel.
  *
- * @author Anthonius Munthi <https://itstoni.com>
+ * @author  Anthonius Munthi <https://itstoni.com>
+ * @codeCoverageIgnore
  */
-class CommandException extends \Exception
+class LogLevel extends BaseLogLevel
 {
+    const CMD = 'cmd';
+    const OUT = 'out';
 }

@@ -1,0 +1,32 @@
+services:
+    Symfony\Component\Console\Input\InputInterface:
+        alias: monorepo.input
+    Symfony\Component\Console\Output\OutputInterface:
+        alias: monorepo.output
+    Psr\Log\LoggerInterface:
+        alias: monorepo.logger
+
+    monorepo.input:
+        class: Symfony\Component\Console\Input\ArgvInput
+    monorepo.output:
+        class: Symfony\Component\Console\Output\ConsoleOutput
+    monorepo.app:
+        class: Monorepo\Console\Application
+    monorepo.logger:
+        class: Monorepo\Console\Logger
+    monorepo.dispatcher:
+        class: Monorepo\Event\EventDispatcher
+    monorepo.config:
+        class: Monorepo\Config\Config
+    monorepo.runner:
+        class: Monorepo\Processor\Runner
+    monorepo.filesystem:
+        class: Monorepo\Processor\Filesystem
+
+    # event subscribers
+    Monorepo\Processor\SplitProcessor: ~
+
+    # command lists
+    Monorepo\Command\:
+        resource: '../src/Command/*'
+        exclude: '../src/Command/{AbstractCommand,CommandInterface}'
