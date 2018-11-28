@@ -23,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SelfUpdateCommand extends AbstractCommand
 {
-    const BASE_URL = 'https://raw.githubusercontent.com/kilip/monorepo/phar';
+    const BASE_URL = 'https://netix.dl.sourceforge.net/project/monorepo';
 
     /**
      * @var string

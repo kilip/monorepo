@@ -125,9 +125,10 @@ class Downloader
         $dryRun   = $input->hasParameterOption('dry-run');
         $fullName = basename($targetFile);
         $fs       = $this->fs;
+        $output   = $this->output;
 
+        $output->writeln('');
         $fs->mkdir(\dirname($targetFile));
-
         $this->progressBar->setFormat("Download <comment>$fullName</comment>: <comment>%percent:3s%%</comment> <info>%estimated:-6s%</info>");
 
         $this->hasError = false;
@@ -143,6 +144,8 @@ class Downloader
 
             file_put_contents($targetFile, $this->contents, LOCK_EX);
         }
+        $output->writeln('');
         $this->logger->debug('Download <comment>finished</comment>');
+        $output->writeln('');
     }
 }
