@@ -24,6 +24,11 @@ class Config
     const EVENT_CONFIG_NOT_FOUND = 'config.config_not_found';
 
     /**
+     * @var string
+     */
+    private $cacheDir;
+
+    /**
      * @var EventDispatcher
      */
     private $dispatcher;
@@ -44,6 +49,14 @@ class Config
     {
         $this->dispatcher = $dispatcher;
         $this->logger     = $logger;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCacheDir(): string
+    {
+        return $this->cacheDir;
     }
 
     public function getMonorepoDir()
@@ -112,6 +125,14 @@ class Config
                 sprintf('Error reading config from "%s". Error message: "%s"', $file, $e->getMessage())
             );
         }
+    }
+
+    /**
+     * @param string $cacheDir
+     */
+    public function setCacheDir(string $cacheDir): void
+    {
+        $this->cacheDir = $cacheDir;
     }
 
     /**
