@@ -45,6 +45,13 @@
         }
     },
     "scripts": {
+        "splitsh-install": "./vendor/bin/splitsh-install",
+        "post-install-cmd": [
+            "@splitsh-install"
+        ],
+        "post-update-command": [
+            "@splitsh-install"
+        ],
         "coverage": "phpunit --coverage-html=build/coverage/html --coverage-clover=build/coverage/clover.xml --colors=always",
         "test": "phpunit --colors=always"
     },

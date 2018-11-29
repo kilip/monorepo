@@ -41,13 +41,6 @@ class SplitCommand extends AbstractCommand implements CommandInterface
      */
     private $logger;
 
-    /**
-     * splitsh-lite bin path.
-     *
-     * @var string
-     */
-    private $splitshLitePath;
-
     public function __construct(
         LoggerInterface $logger,
         EventDispatcher $dispatcher

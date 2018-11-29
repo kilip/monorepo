@@ -82,7 +82,7 @@ class SplitProcessor implements EventSubscriberInterface
      */
     private function configure()
     {
-        $file          = __DIR__.'/../../vendor/toni/splitsh/bin/splitsh';
+        $file          = __DIR__.'/../../vendor/toni/splitsh/bin/splitsh-lite';
         $this->splitsh = $file;
     }
 
