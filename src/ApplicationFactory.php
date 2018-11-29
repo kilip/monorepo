@@ -197,9 +197,6 @@ class ApplicationFactory
 
         /* @var \Symfony\Component\DependencyInjection\Container $container */
         $container       = new $className();
-        $config          = $container->get('monorepo.config');
-
-        $config->setCacheDir($cacheDir);
 
         $this->container = $container;
     }

@@ -45,6 +45,11 @@ class Config
      */
     private $projects = [];
 
+    /**
+     * @var string
+     */
+    private $rootDir;
+
     public function __construct(EventDispatcher $dispatcher, Logger $logger)
     {
         $this->dispatcher = $dispatcher;
@@ -81,6 +86,14 @@ class Config
     public function getProjects(): array
     {
         return $this->projects;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRootDir(): string
+    {
+        return $this->rootDir;
     }
 
     /**
@@ -141,6 +154,14 @@ class Config
     public function setProjects($projects)
     {
         $this->projects = $projects;
+    }
+
+    /**
+     * @param string $rootDir
+     */
+    public function setRootDir(string $rootDir)
+    {
+        $this->rootDir = $rootDir;
     }
 
     /**

@@ -14,10 +14,12 @@ declare(strict_types=1);
 namespace Monorepo\DI\Compiler;
 
 use Monorepo\Command\CommandInterface;
+use Monorepo\Config\Config;
 use Monorepo\Console\Application;
 use Monorepo\Event\EventDispatcher;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -74,6 +76,7 @@ class DefaultPass implements CompilerPassInterface
 
         $app        = $container->findDefinition(Application::class);
         $dispatcher = $container->findDefinition(EventDispatcher::class);
+        $config     = $container->findDefinition(Config::class);
 
         foreach ($commands as $class) {
             $app->addMethodCall('add', [new Reference($class)]);
@@ -82,5 +85,24 @@ class DefaultPass implements CompilerPassInterface
         foreach ($subscribers as $class) {
             $dispatcher->addMethodCall('addSubscriber', [new Reference($class)]);
         }
+
+        $this->processConfig($container, $config);
+    }
+
+    private function guessRootDir()
+    {
+        $pos     = strripos(__FILE__, 'src/');
+        $rootDir = substr(__FILE__, 0, $pos - 1);
+
+        return $rootDir;
+    }
+
+    private function processConfig(ContainerBuilder $container, Definition $config)
+    {
+        $cacheDir = realpath($container->getParameter('monorepo.cache_dir'));
+        $rootDir  = $this->guessRootDir();
+
+        $config->addMethodCall('setCacheDir', [$cacheDir]);
+        $config->addMethodCall('setRootDir', [$rootDir]);
     }
 }
