@@ -175,7 +175,7 @@ class Config
     {
         $schemaFile = $this->rootDir.'/config/schema.json';
 
-        if (!strpos(__FILE__, 'phar:///')) {
+        if (false === strpos(__FILE__, 'phar')) {
             $schemaFile = 'file://'.$schemaFile;
         }
         $schema     = (object) ['$ref' => $schemaFile];
