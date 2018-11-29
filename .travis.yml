@@ -36,12 +36,13 @@ before_deploy:
 - chmod 600 deploy_rsa
 - ssh-add deploy_rsa
 
+# TODO: deploy need to change into branch master only
 deploy:
   provider: script
   skip_cleanup: true
   script: ./etc/travis/deploy.sh
   on:
-    branch: master|travis-debug
+    branch: master|wip
     condition: $DEPLOY="yes"
 
 script:
