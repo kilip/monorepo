@@ -28,6 +28,7 @@ before_install:
 
 install:
 - composer install --prefer-dist --no-progress --no-suggest --ansi
+- composer splitsh-install
 
 before_deploy:
 - openssl aes-256-cbc -K $encrypted_858fb281b37a_key -iv $encrypted_858fb281b37a_iv -in ./etc/travis/deploy_rsa.enc -out deploy_rsa -d

@@ -45,7 +45,7 @@
         }
     },
     "scripts": {
-        "splitsh-install": "bin/splitsh-install",
+        "splitsh-install": "./vendor/bin/splitsh-install",
         "post-install-cmd": [
             "@splitsh-install"
         ],
