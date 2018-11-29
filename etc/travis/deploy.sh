@@ -11,16 +11,17 @@ MESSAGE="Deploy success!"
 function doExec()
 {
     if [[ 0 == ${EXIT} ]]; then
-        $1 || EXIT=$2
+        echo $1;
+        $1 || EXIT=$2;
     else
-        echo "Skipping command ${1}"
+        echo "Skipping command ${1}";
     fi;
 }
 
 mkdir -pv ${RELEASE_PATH} | echo "directory ${RELEASE_PATH} exists"
 
 doExec "./bin/monorepo compile --ansi -vvv ${TRAVIS_BUILD_DIR}/build/release" 1
-doExec "rsync -r --delete-after --quiet ${TRAVIS_BUILD_DIR}/build/release ${SF_USER}:${SF_PASS}@${SF_HOST}:${SF_PATH}" 2
+doExec "rsync -r --delete-after --quiet ${TRAVIS_BUILD_DIR}/build/release ${SF_USER}@${SF_HOST}:${SF_PATH}" 2
 
 if [[ 1 == $EXIT ]]; then
     MESSAGE="Compile failed!";
