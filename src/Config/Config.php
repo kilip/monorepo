@@ -106,6 +106,10 @@ class Config
      */
     public function getRootDir(): string
     {
+        if (null === $this->rootDir) {
+            $this->rootDir = realpath(__DIR__.'/../../');
+        }
+
         return $this->rootDir;
     }
 
@@ -194,7 +198,7 @@ class Config
      */
     private function validate($contents)
     {
-        $schemaFile = $this->rootDir.'/config/schema.json';
+        $schemaFile = $this->getRootDir().'/config/schema.json';
 
         if (false === strpos(__FILE__, 'phar')) {
             $schemaFile = 'file://'.$schemaFile;

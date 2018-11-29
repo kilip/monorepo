@@ -36,7 +36,6 @@ class ApplicationFactory
 
     public function boot(): self
     {
-        $this->loadEnv();
         $this->compileContainer();
 
         return $this;
@@ -133,6 +132,8 @@ class ApplicationFactory
 
     public static function getEnv()
     {
+        self::loadEnv();
+
         return getenv('MONOREPO_ENV');
     }
 
@@ -141,7 +142,7 @@ class ApplicationFactory
         return 'dev' === self::getEnv() || 'test' === self::getEnv();
     }
 
-    public function loadEnv()
+    public static function loadEnv()
     {
         static $loaded = false;
 

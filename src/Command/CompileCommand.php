@@ -174,7 +174,6 @@ class CompileCommand extends AbstractCommand
             ->ignoreVCS(true)
             ->name('*.php')
             ->name('LICENSE')
-            ->name('splitsh')
             ->exclude('Tests')
             ->exclude('tests')
             ->exclude('test')
@@ -187,7 +186,6 @@ class CompileCommand extends AbstractCommand
             ->in($this->baseDir.'/vendor/justinrainbow')
             ->in($this->baseDir.'/vendor/psr')
             ->in($this->baseDir.'/vendor/symfony')
-            ->in($this->baseDir.'/vendor/toni')
             ->in($this->baseDir.'/vendor/zendframework')
             ->sort($finderSort)
         ;
