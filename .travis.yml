@@ -41,7 +41,7 @@ deploy:
   script: ./etc/travis/deploy.sh
   on:
     branch: master|travis-debug
-    condition: $DEPLOY = yes
+    condition: $DEPLOY="yes"
 
 script:
 - |
