@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Monorepo\Command;
 
+use Monorepo\Processor\Filesystem;
 use Seld\PharUtils\Timestamps;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
@@ -24,6 +25,7 @@ use Symfony\Component\Process\Process;
 /**
  * Class CompileCommand.
  *
+ * @TODO: cleanup all mess, make it more readable
  * @codeCoverageIgnore
  */
 class CompileCommand extends AbstractCommand
@@ -44,6 +46,11 @@ class CompileCommand extends AbstractCommand
     private $files = [];
 
     /**
+     * @var Filesystem
+     */
+    private $fs;
+
+    /**
      * @var OutputInterface
      */
     private $output;
@@ -58,7 +65,13 @@ class CompileCommand extends AbstractCommand
      */
     private $versionDate;
 
-    public function compile($pharFile = 'monorepo.phar')
+    public function __construct(Filesystem $fs)
+    {
+        $this->fs = $fs;
+        parent::__construct();
+    }
+
+    public function compile($pharFile = 'mr.phar')
     {
         if (file_exists($pharFile)) {
             unlink($pharFile);
@@ -96,8 +109,8 @@ class CompileCommand extends AbstractCommand
     {
         $this
             ->setName('compile')
-            ->setDescription('generate new monorepo.phar')
-            ->addArgument('target', InputArgument::OPTIONAL, 'Compile monorepo.phar into this directory', getcwd().'/build')
+            ->setDescription('generate new mr.phar')
+            ->addArgument('target', InputArgument::OPTIONAL, 'Compile mr.phar into this directory', getcwd().'/build')
         ;
     }
 
@@ -108,17 +121,19 @@ class CompileCommand extends AbstractCommand
 
         $this->baseDir = getcwd();
         $this->output  = $output;
+        $fs            = $this->fs;
 
         // start compiling process
         $targetDir = realpath($input->getArgument('target'));
-        $target    = $targetDir.'/monorepo.phar';
+        $target    = $targetDir.'/mr.phar';
         $this->compile($target);
-        $this->generateVersionFile($targetDir);
+        //$this->generateVersionFile($targetDir);
         chmod($target, 0755);
 
         chdir($cwd);
-
-        $output->writeln("Completed! monorepo.phar generated in <comment>$target</comment>");
+        $fs->remove($target);
+        $fs->remove($targetDir.'/vendor');
+        $output->writeln("Completed! Phar files generated in <comment>$targetDir</comment>");
     }
 
     /**
@@ -144,14 +159,14 @@ class CompileCommand extends AbstractCommand
         $phar->addFromString($path, $content);
     }
 
-    private function addMonorepoBin($phar)
+    private function addMonorepoBin(\Phar $phar)
     {
         $content = file_get_contents($this->baseDir.'/bin/monorepo');
         $content = preg_replace('{^#!/usr/bin/env php\s*}', '', $content);
         $phar->addFromString('bin/monorepo', $content);
     }
 
-    private function generatePhar($pharFile = 'monorepo.phar')
+    private function generatePhar($pharFile = 'mr.phar')
     {
         $finderSort = function ($a, $b) {
             return strcmp(strtr($a->getRealPath(), '\\', '/'), strtr($b->getRealPath(), '\\', '/'));
@@ -194,7 +209,7 @@ class CompileCommand extends AbstractCommand
         $this->registerFiles($finder);
         $this->files[] = new \SplFileInfo($this->baseDir.'/vendor/autoload.php');
 
-        $phar = new \Phar($pharFile, 0, 'monorepo.phar');
+        $phar = new \Phar($pharFile, 0, 'mr.phar');
         $phar->setSignatureAlgorithm(\Phar::SHA1);
         $phar->startBuffering();
 
@@ -202,24 +217,53 @@ class CompileCommand extends AbstractCommand
         $this->output->writeln("Start processing <comment>{$count} files</comment>");
         $this->processFiles($phar);
         $this->output->writeln('');
+
         $this->addMonorepoBin($phar);
-        $phar->setStub($this->getStub());
+
         $phar->stopBuffering();
 
         unset($phar);
 
-        $util = new Timestamps($pharFile);
-        $util->updateTimestamps($this->versionDate);
-        $util->save($pharFile, \Phar::SHA1);
+        $this->generatePlatformFile($pharFile, 'linux');
+        $this->generatePlatformFile($pharFile, 'darwin');
     }
 
-    private function generateVersionFile($targetDir)
+    private function generatePlatformFile($pharFile, $platform)
     {
-        $version     = $this->version;
-        $branchAlias = $this->branchAliasVersion;
-        $date        = $this->versionDate->format('Y-m-d H:i:s');
-        $sha256      = trim(shell_exec('sha256sum '.$targetDir.'/monorepo.phar'));
-        $sha256      = trim(str_replace($targetDir.'/monorepo.phar', '', $sha256));
+        $dir          = \dirname($pharFile);
+        $platformFile = sprintf($dir.'/mr-%s.phar', $platform);
+        $pharBin      = 'vendor/toni/splitsh/bin';
+        $pharBinSrc   = sprintf(__DIR__.'/../../vendor/toni/splitsh/bin/%s.amd64/splitsh-lite', $platform);
+
+        @mkdir($pharBin, 0777, true);
+
+        copy($pharFile, $platformFile);
+        copy($pharBinSrc, $pharBin.'/splitsh-lite');
+        chmod($pharBin.'/splitsh-lite', 0777);
+        chmod($platformFile, 0777);
+
+        $phar = new \Phar($platformFile);
+        $phar->addEmptyDir($pharBin);
+        $phar->addFile($pharBin.'/splitsh-lite');
+        $phar->setStub($this->getStub());
+
+        unset($phar);
+
+        $util = new Timestamps($platformFile);
+        $util->updateTimestamps($this->versionDate);
+        $util->save($platformFile, \Phar::SHA1);
+        $this->generateVersionFile($dir, $platform);
+    }
+
+    private function generateVersionFile($targetDir, $platform)
+    {
+        $pharFileName = sprintf('mr-%s.phar', $platform);
+        $targetFile   = sprintf($targetDir.'/%s.json', $pharFileName);
+        $version      = $this->version;
+        $branchAlias  = $this->branchAliasVersion;
+        $date         = $this->versionDate->format('Y-m-d H:i:s');
+        $sha256       = trim(shell_exec('sha256sum '.$targetDir.'/'.$pharFileName));
+        $sha256       = trim(str_replace($targetDir.'/'.$pharFileName, '', $sha256));
 
         $contents = <<<EOC
 {
@@ -230,7 +274,7 @@ class CompileCommand extends AbstractCommand
 }
 
 EOC;
-        file_put_contents($targetDir.'/monorepo.phar.json', $contents, LOCK_EX);
+        file_put_contents($targetFile, $contents, LOCK_EX);
     }
 
     /**
@@ -274,7 +318,7 @@ if (extension_loaded('apc') && ini_get('apc.enable_cli') && ini_get('apc.cache_b
 
 putenv('MONOREPO_PHAR_MODE=1');
 
-Phar::mapPhar('monorepo.phar');
+Phar::mapPhar('mr.phar');
 
 EOF;
 
@@ -284,11 +328,13 @@ EOF;
             $stub .= "define('COMPOSER_DEV_WARNING_TIME', $warningTime);\n";
         }
 
-        return $stub.<<<'EOF'
-require 'phar://monorepo.phar/bin/monorepo';
+        $stub = $stub.<<<'EOF'
+require 'phar://mr.phar/bin/monorepo';
 
 __HALT_COMPILER();
 EOF;
+
+        return $stub;
     }
 
     private function processFiles($phar)
