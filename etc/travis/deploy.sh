@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+set -x
 
 SF_PATH=/home/frs/project/monorepo
 RELEASE_PATH=${TRAVIS_BUILD_DIR}/build/release

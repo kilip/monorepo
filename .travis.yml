@@ -8,10 +8,11 @@ addons:
 
 matrix:
   include:
-  #- php: '7.0'
-  #- php: '7.1'
+  - php: '7.0'
+    env: DEPLOY=yes
+  - php: '7.1'
   - php: '7.2'
-  #- php: '7.3'
+  - php: '7.3'
   - php: '7.2'
     env: COVERAGE=yes
   allow_failures:
@@ -39,8 +40,8 @@ deploy:
   skip_cleanup: true
   script: ./etc/travis/deploy.sh
   on:
-    branch: travis-debug
-    condition: $COVERAGE != yes
+    branch: master|travis-debug
+    condition: $DEPLOY = yes
 
 script:
 - |
