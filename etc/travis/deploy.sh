@@ -4,7 +4,7 @@ set -e
 set -x
 
 SF_PATH=/home/frs/project/monorepo
-RELEASE_PATH=${TRAVIS_BUILD_DIR}/build/release
+RELEASE_PATH=${TRAVIS_BUILD_DIR}/build/latest
 EXIT=0
 MESSAGE="Deploy success!"
 
@@ -21,8 +21,8 @@ function doExec()
 
 mkdir -pv ${RELEASE_PATH} | echo "directory ${RELEASE_PATH} exists"
 
-doExec "./bin/monorepo compile --ansi -vvv ${TRAVIS_BUILD_DIR}/build/release" 1
-doExec "rsync -r --delete-after --quiet ${TRAVIS_BUILD_DIR}/build/release ${SF_USER}@${SF_HOST}:${SF_PATH}" 2
+doExec "./bin/monorepo compile --ansi -vvv ${RELEASE_PATH}" 1
+doExec "rsync -r --delete-after --quiet ${RELEASE_PATH} ${SF_USER}@${SF_HOST}:${SF_PATH}" 2
 
 if [[ 1 == $EXIT ]]; then
     MESSAGE="Compile failed!";
