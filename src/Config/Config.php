@@ -173,7 +173,7 @@ class Config
      */
     private function validate($contents)
     {
-        $schemaFile = __DIR__.'/../../config/schema.json';
+        $schemaFile = $this->rootDir.'/config/schema.json';
 
         if (!strpos(__FILE__, 'phar:///')) {
             $schemaFile = 'file://'.$schemaFile;
