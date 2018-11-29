@@ -18,6 +18,10 @@ services:
         class: Monorepo\Event\EventDispatcher
     monorepo.config:
         class: Monorepo\Config\Config
+        calls:
+            - ['setCacheDir',['%monorepo.cache_dir%']]
+            - ['setRootDir',['%monorepo.root_dir%']]
+            - ['setContainerId',['%monorepo.container_id%']]
     monorepo.runner:
         class: Monorepo\Processor\Runner
     monorepo.filesystem:

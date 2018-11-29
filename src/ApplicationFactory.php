@@ -165,22 +165,25 @@ class ApplicationFactory
 
     private function compileContainer()
     {
+        $id          = crc32(__FILE__);
         $cacheDir    = self::isDev() ? getcwd().'/var/cache' : getenv('HOME').'/.monorepo/cache';
-        $cachePath   = $cacheDir.'/container.php';
+        $cachePath   = sprintf($cacheDir.'/container/%s.php', $id);
         $cache       = new ConfigCache($cachePath, !self::isDev());
-        $className   = 'CachedContainer';
+        $className   = 'CachedContainer'.$id;
         $builder     = new ContainerBuilder();
 
         // @codeCoverageIgnoreStart
-        if (!is_dir($cacheDir)) {
-            mkdir($cacheDir, 0777, true);
+        if (!is_dir(\dirname($cachePath))) {
+            mkdir(\dirname($cachePath), 0777, true);
         }
 
         $this->processConfig($builder);
 
         if (!$cache->isFresh() || self::isDev()) {
-            $builder->addCompilerPass(new DefaultPass());
+            $builder->setParameter('monorepo.container_id', $id);
             $builder->setParameter('monorepo.cache_dir', $cacheDir);
+            $builder->setParameter('monorepo.root_dir', $this->guessRootDir());
+            $builder->addCompilerPass(new DefaultPass());
             $builder->compile(true);
             $dumper = new PhpDumper($builder);
             $cache->write(
@@ -199,6 +202,14 @@ class ApplicationFactory
         $container       = new $className();
 
         $this->container = $container;
+    }
+
+    private function guessRootDir()
+    {
+        $pos     = strripos(__FILE__, 'src/');
+        $rootDir = substr(__FILE__, 0, $pos - 1);
+
+        return $rootDir;
     }
 
     private function processConfig(ContainerBuilder $builder)

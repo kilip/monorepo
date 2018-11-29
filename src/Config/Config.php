@@ -29,6 +29,11 @@ class Config
     private $cacheDir;
 
     /**
+     * @var string
+     */
+    private $containerId;
+
+    /**
      * @var EventDispatcher
      */
     private $dispatcher;
@@ -62,6 +67,14 @@ class Config
     public function getCacheDir(): string
     {
         return $this->cacheDir;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContainerId(): string
+    {
+        return $this->containerId;
     }
 
     public function getMonorepoDir()
@@ -146,6 +159,14 @@ class Config
     public function setCacheDir(string $cacheDir)
     {
         $this->cacheDir = $cacheDir;
+    }
+
+    /**
+     * @param string $containerId
+     */
+    public function setContainerId(string $containerId)
+    {
+        $this->containerId = $containerId;
     }
 
     /**
