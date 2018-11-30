@@ -55,10 +55,14 @@ class Config
      */
     private $rootDir;
 
+    private $userOS;
+
     public function __construct(EventDispatcher $dispatcher, Logger $logger)
     {
         $this->dispatcher = $dispatcher;
         $this->logger     = $logger;
+        $this->rootDir    = realpath(__DIR__.'/../../');
+        $this->userOS     = $this->guessUserOS();
     }
 
     /**
@@ -106,11 +110,15 @@ class Config
      */
     public function getRootDir(): string
     {
-        if (null === $this->rootDir) {
-            $this->rootDir = realpath(__DIR__.'/../../');
-        }
-
         return $this->rootDir;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserOS(): string
+    {
+        return $this->userOS;
     }
 
     /**
@@ -187,6 +195,20 @@ class Config
     public function setRootDir(string $rootDir)
     {
         $this->rootDir = $rootDir;
+    }
+
+    private function guessUserOS()
+    {
+        $os = PHP_OS;
+
+        switch ($os) {
+            case 'Darwin':
+                return 'darwin';
+            case 'Windows':
+                return 'windows';
+            default:
+                return 'linux';
+        }
     }
 
     /**

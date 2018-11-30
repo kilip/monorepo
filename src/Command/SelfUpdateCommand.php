@@ -97,7 +97,7 @@ class SelfUpdateCommand extends AbstractCommand
         $this->cacheDir   = $config->getCacheDir();
         $this->fs         = $filesystem;
         $this->logger     = $logger;
-        $this->platform   = strtolower(PHP_OS_FAMILY);
+        $this->platform   = $config->getUserOS();
         parent::__construct('self-update');
     }
 
