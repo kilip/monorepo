@@ -28,7 +28,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TestSelfUpdateCommand extends SelfUpdateCommand
 {
-    public function run($input, $output)
+    public function run(InputInterface $input, OutputInterface $output)
     {
         $this->execute($input, $output);
     }
