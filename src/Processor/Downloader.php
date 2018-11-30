@@ -115,7 +115,7 @@ class Downloader
 
                 break;
             case STREAM_NOTIFY_MIME_TYPE_IS:
-                $logger->debug('mime type is: {0}', $message);
+                $logger->debug('mime type is: {0}', [$message]);
 
                 break;
             case STREAM_NOTIFY_PROGRESS:
