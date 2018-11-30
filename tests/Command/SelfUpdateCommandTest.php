@@ -176,8 +176,12 @@ JSON;
     public function testValidateVersion()
     {
         $logger = $this->logger;
+        $app    = $this->createMock(Application::class);
+        $stub   = $this->getStub(['validateVersion'])->getMock();
 
-        $stub = $this->getStub(['validateVersion'])->getMock();
+        $stub->expects($this->once())
+            ->method('getApplication')
+            ->willReturn($app);
 
         $json = $this->json;
 
