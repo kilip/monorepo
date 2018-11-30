@@ -130,7 +130,8 @@ class SelfUpdateCommand extends AbstractCommand
     {
         $fs              = $this->fs;
         $tempDir         = $this->tempDir;
-        $versionFile     = sprintf($tempDir.'/update/%s', 'mr.phar.json');
+        $pharVersionName = sprintf('mr-%s.phar.json', $this->config->getUserOS());
+        $versionFile     = sprintf($tempDir.'/update/%s', $pharVersionName);
         $logger          = $this->logger;
 
         $logger->info('start checking new version');
