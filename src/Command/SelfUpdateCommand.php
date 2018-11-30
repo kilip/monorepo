@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace Monorepo\Command;
 
 use Monorepo\Config\Config;
-use Monorepo\Console\Application;
 use Monorepo\Console\Logger;
+use Monorepo\Exception\HttpNotFoundException;
 use Monorepo\Processor\Downloader;
 use Monorepo\Processor\Filesystem;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,8 +23,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SelfUpdateCommand extends AbstractCommand
 {
-    const BASE_URL = 'https://sourceforge.net/projects/monorepo/files/latest/%%file%%/download';
-
     /**
      * @var string
      */
@@ -60,15 +58,21 @@ class SelfUpdateCommand extends AbstractCommand
      */
     private $logger;
 
-    /**
-     * @var string
-     */
-    private $pharFile;
+    private $pharName;
+
+    private $pharVersionName;
 
     /**
      * @var string
      */
     private $platform;
+
+    /**
+     * Use stable source.
+     *
+     * @var bool
+     */
+    private $stable = true;
 
     /**
      * @var string
@@ -94,11 +98,69 @@ class SelfUpdateCommand extends AbstractCommand
         $this->config     = $config;
         $this->downloader = $downloader;
         $this->tempDir    = sys_get_temp_dir().'/monorepo';
-        $this->cacheDir   = $config->getCacheDir();
+        $this->cacheDir   = $config->getMonorepoDir().'/releases';
         $this->fs         = $filesystem;
         $this->logger     = $logger;
-        $this->platform   = $config->getUserOS();
         parent::__construct('self-update');
+    }
+
+    public function downloadVersionFile($target, $stable = true)
+    {
+        try {
+            $url        = $this->config->getVersionUrl($stable);
+            $downloader = $this->downloader;
+            $downloader->run($url, $target);
+            $contents = file_get_contents($target);
+
+            return json_decode($contents, true);
+        } catch (HttpNotFoundException $exception) {
+            return false;
+        }
+    }
+
+    public function update()
+    {
+        $fs          = $this->fs;
+        $tempDir     = $this->tempDir.'/update/'.$this->version;
+        $downloader  = $this->downloader;
+        $url         = $this->config->getPharUrl($this->stable);
+        $targetFile  = $tempDir.\DIRECTORY_SEPARATOR.'mr.phar';
+
+        $fs->copy($this->versionFile, $tempDir.\DIRECTORY_SEPARATOR.'VERSION');
+
+        if (!is_file($targetFile)) {
+            $downloader->run($url, $targetFile);
+        }
+
+        $this->createPhar($this->cacheDir, $targetFile);
+    }
+
+    public function validateVersion()
+    {
+        $fs              = $this->fs;
+        $tempDir         = $this->tempDir;
+        $pharVersionName = $this->pharVersionName;
+        $versionFile     = sprintf($tempDir.'/update/%s', $pharVersionName);
+        $logger          = $this->logger;
+
+        $logger->info('start checking new version');
+        $fs->mkdir(\dirname($versionFile));
+
+        if (false == ($json = $this->downloadVersionFile($versionFile))) {
+            $this->stable = false;
+            $logger->info('no stable version found');
+            $logger->info('checking nightly build version');
+            $json = $this->downloadVersionFile($versionFile, false);
+        }
+
+        if (!\is_array($json)) {
+            throw new \RuntimeException('Update failed. Can not find version file to update');
+        }
+
+        $this->versionFile = $versionFile;
+        $this->version     = $json['version'];
+        $this->branchAlias = $json['branch'];
+        $this->date        = $json['date'];
     }
 
     protected function configure()
@@ -118,69 +180,34 @@ class SelfUpdateCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $tempDir     = $this->tempDir;
-        $baseUrl     = static::BASE_URL;
-        $platform    = $this->platform;
-        $url         = str_replace('%%file%%', 'mr-'.$platform.'.phar.json', $baseUrl);
-        $versionFile = sprintf($tempDir.'/update/mr-%s.phar.json', $platform);
-        $fs          = $this->fs;
         $logger      = $this->logger;
-
-        $output->writeln('Start checking new version');
-
-        $fs->mkdir(\dirname($versionFile));
-
-        $downloader = $this->downloader;
-        $downloader->run($url, $versionFile);
-        $contents = file_get_contents($versionFile);
-        if ('' === trim($contents)) {
-            throw new \Exception(sprintf('Can not parse mr-%s.phar.json file', $platform));
-        }
-        $json = json_decode($contents, true);
-
-        $this->versionFile = $versionFile;
-        $this->version     = $json['version'];
-        $this->branchAlias = $json['branch'];
-        $this->date        = $json['date'];
-
-        if (Application::VERSION !== $this->version) {
-            $this->doUpdate($output);
+        if (!$this->validateVersion()) {
+            $this->update($output);
             $this->getApplication()->get('clear-cache')->run($input, $output);
         } else {
-            $logger->info('You already have latest monorepo version');
+            $logger->info('You already have the latest version.');
         }
     }
 
-    private function doUpdate(OutputInterface $output)
+    /**
+     * @param string $cacheDir
+     * @param string $targetFile
+     * @codeCoverageIgnore
+     */
+    private function createPhar($cacheDir, $targetFile)
     {
-        $fs       = $this->fs;
-        $platform = $this->platform;
-        $tempDir  = $this->tempDir.'/update/'.$this->version;
-        $fs->copy($this->versionFile, $tempDir.\DIRECTORY_SEPARATOR.'VERSION');
-
-        $targetFile = $tempDir.\DIRECTORY_SEPARATOR.'mr.phar';
-        if (!is_file($targetFile)) {
-            $baseUrl     = static::BASE_URL;
-            $url         = str_replace('%%file%%', 'mr-'.$platform.'.phar', $baseUrl);
-            $downloader  = $this->downloader;
-            $downloader->run($url, $targetFile);
-        }
-
-        $this->pharFile = $targetFile;
-        $cacheDir       = $this->cacheDir;
-
-        // copy current phar into new dir
         // we can't coverage or test phar environment
-        //@codeCoverageIgnoreStart
         $current = \Phar::running(false);
-        $output->writeln($current);
+        $logger  = $this->logger;
+        $fs      = $this->fs;
+
+        $logger->info($current);
         if (is_file($current)) {
             $override = ['override' => true];
             $backup   = $cacheDir.'/mr_old.phar';
             $fs->copy($current, $backup, $override);
-            $fs->copy($this->pharFile, $current, $override);
-            $output->writeln('Your <comment>mr.phar</comment> is updated.');
+            $fs->copy($targetFile, $current, $override);
+            $logger->info('Your {0} is updated.', ['monorepo']);
         }
-        //@codeCoverageIgnoreEnd
     }
 }

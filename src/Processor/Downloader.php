@@ -13,9 +13,12 @@ declare(strict_types=1);
 
 namespace Monorepo\Processor;
 
-use Psr\Log\LoggerInterface;
+use Monorepo\Console\Logger;
+use Monorepo\Exception\HttpNotFoundException;
+use Monorepo\Exception\NetworkConnectionException;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Downloader
@@ -24,6 +27,11 @@ class Downloader
      * @var int
      */
     private $bytesMax;
+
+    /**
+     * @var bool
+     */
+    private $connected;
 
     /**
      * @var string
@@ -46,7 +54,7 @@ class Downloader
     private $input;
 
     /**
-     * @var LoggerInterface
+     * @var Logger
      */
     private $logger;
 
@@ -60,11 +68,11 @@ class Downloader
      */
     private $progressBar;
 
-    public function __construct(InputInterface $input, OutputInterface $output, LoggerInterface $logger, Filesystem $filesystem)
+    public function __construct(InputInterface $input, OutputInterface $output, Logger $logger, Filesystem $filesystem)
     {
         $this->output      = $output;
         $this->logger      = $logger;
-        $this->progressBar = new ProgressBar($output);
+        $this->progressBar = new ProgressBar(new ConsoleOutput());
         $this->input       = $input;
         $this->fs          = $filesystem;
     }
@@ -77,20 +85,21 @@ class Downloader
         return $this->progressBar;
     }
 
-    public function handleError($bar, $message)
+    public function handleError($code, $message)
     {
+        $logger         = $this->logger;
         $this->hasError = true;
-        $this->output->writeln("<comment>Error:</comment>\n<info>${message}</info>\n");
+        $logger->error('code: {0} message: {1}', [$code, $message]);
     }
 
     public function handleNotification($notificationCode, $severity, $message, $messageCode, $bytesTransferred, $bytesMax)
     {
+        $logger = $this->logger;
         switch ($notificationCode) {
-            case STREAM_NOTIFY_RESOLVE:
-            case STREAM_NOTIFY_AUTH_REQUIRED:
-            case STREAM_NOTIFY_FAILURE:
-            case STREAM_NOTIFY_AUTH_RESULT:
-                // handle error here
+            case STREAM_NOTIFY_CONNECT:
+                $logger->debug('connected to server');
+                $this->connected = true;
+
                 break;
             case STREAM_NOTIFY_REDIRECTED:
                 $this->output->writeln('');
@@ -111,6 +120,17 @@ class Downloader
                 $this->progressBar->setProgress($bytesMax);
 
                 break;
+            case STREAM_NOTIFY_FAILURE:
+                throw new HttpNotFoundException($message);
+
+                break;
+            case STREAM_NOTIFY_RESOLVE:
+            case STREAM_NOTIFY_AUTH_REQUIRED:
+            case STREAM_NOTIFY_AUTH_RESULT:
+            default:
+                $logger->info('Download failed code: {0} message: {1}', [$notificationCode, $message]);
+
+                break;
         }
     }
 
@@ -121,25 +141,38 @@ class Downloader
      */
     public function run(string $url, string $targetFile)
     {
-        $input    = $this->input;
-        $dryRun   = $input->hasParameterOption('dry-run');
-        $fullName = basename($targetFile);
-        $fs       = $this->fs;
-        $output   = $this->output;
+        $input           = $this->input;
+        $dryRun          = $input->hasParameterOption('dry-run');
+        $fullName        = basename($targetFile);
+        $fs              = $this->fs;
+        $output          = $this->output;
+        $logger          = $this->logger;
+        $this->connected = false;
 
         $output->writeln('');
         $fs->mkdir(\dirname($targetFile));
         $this->progressBar->setFormat("Download <comment>$fullName</comment>: <comment>%percent:3s%%</comment> <info>%estimated:-6s%</info>");
 
         $this->hasError = false;
-        $this->logger->debug('Downloading {0} to {1}', [$url, $targetFile]);
+        $logger->info('Downloading {0}', [$url]);
         if (!$dryRun) {
             $context = stream_context_create([], ['notification' => [$this, 'handleNotification']]);
             set_error_handler([$this, 'handleError']);
-            $this->contents = file_get_contents($url, false, $context);
+
+            try {
+                $this->contents = file_get_contents($url, false, $context);
+            } catch (\Exception $exception) {
+                if ($exception instanceof HttpNotFoundException && $this->connected) {
+                    throw $exception;
+                } else {
+                    throw new NetworkConnectionException($exception);
+                }
+            }
             restore_error_handler();
             if ($this->hasError) {
-                throw new \RuntimeException('Failed to download '.$url);
+                $output->writeln("\n");
+
+                throw new NetworkConnectionException('Failed to download '.$url);
             }
 
             file_put_contents($targetFile, $this->contents, LOCK_EX);

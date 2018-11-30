@@ -55,6 +55,16 @@ class Config
      */
     private $rootDir;
 
+    /**
+     * @var string
+     */
+    private $updateNightlyURL;
+
+    /**
+     * @var string
+     */
+    private $updateStableURL;
+
     private $userOS;
 
     public function __construct(EventDispatcher $dispatcher, Logger $logger)
@@ -84,6 +94,14 @@ class Config
     public function getMonorepoDir()
     {
         return ApplicationFactory::isDev() ? getcwd().'/var/test-monorepo' : getcwd().'/.monorepo';
+    }
+
+    public function getPharUrl($stable = true)
+    {
+        $baseUrl  = $stable ? $this->updateStableURL : $this->updateNightlyURL;
+        $pharName = sprintf('mr-%s.phar', $this->userOS);
+
+        return str_replace('{file}', $pharName, $baseUrl);
     }
 
     public function getProject($name)
@@ -116,9 +134,33 @@ class Config
     /**
      * @return string
      */
+    public function getUpdateNightlyURL(): string
+    {
+        return $this->updateNightlyURL;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUpdateStableURL(): string
+    {
+        return $this->updateStableURL;
+    }
+
+    /**
+     * @return string
+     */
     public function getUserOS(): string
     {
         return $this->userOS;
+    }
+
+    public function getVersionUrl($stable = true)
+    {
+        $baseUrl  = $stable ? $this->updateStableURL : $this->updateNightlyURL;
+        $pharName = sprintf('mr-%s.phar.json', $this->userOS);
+
+        return str_replace('{file}', $pharName, $baseUrl);
     }
 
     /**
@@ -195,6 +237,22 @@ class Config
     public function setRootDir(string $rootDir)
     {
         $this->rootDir = $rootDir;
+    }
+
+    /**
+     * @param string $updateNightlyURL
+     */
+    public function setUpdateNightlyURL(string $updateNightlyURL)
+    {
+        $this->updateNightlyURL = $updateNightlyURL;
+    }
+
+    /**
+     * @param string $updateStableURL
+     */
+    public function setUpdateStableURL(string $updateStableURL)
+    {
+        $this->updateStableURL = $updateStableURL;
     }
 
     private function guessUserOS()

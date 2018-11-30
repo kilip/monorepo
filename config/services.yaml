@@ -1,3 +1,7 @@
+parameters:
+    monorepo.update_nightly_url: 'https://sourceforge.net/projects/monorepo/files/nightly/{file}/download'
+    monorepo.update_stable_url: 'https://sourceforge.net/projects/monorepo/files/releases/{file}/download'
+
 services:
     Symfony\Component\Console\Input\InputInterface:
         alias: monorepo.input
@@ -22,6 +26,8 @@ services:
             - ['setCacheDir',['%monorepo.cache_dir%']]
             - ['setRootDir',['%monorepo.root_dir%']]
             - ['setContainerId',['%monorepo.container_id%']]
+            - ['setUpdateStableUrl',['%monorepo.update_stable_url%']]
+            - ['setUpdateNightlyUrl',['%monorepo.update_nightly_url%']]
     monorepo.runner:
         class: Monorepo\Processor\Runner
     monorepo.filesystem:
