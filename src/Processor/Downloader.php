@@ -48,6 +48,8 @@ class Downloader
      */
     private $hasError = false;
 
+    private $hasStarted = false;
+
     /**
      * @var InputInterface
      */
@@ -95,6 +97,7 @@ class Downloader
     public function handleNotification($notificationCode, $severity, $message, $messageCode, $bytesTransferred, $bytesMax)
     {
         $logger = $this->logger;
+
         switch ($notificationCode) {
             case STREAM_NOTIFY_CONNECT:
                 $logger->debug('connected to server');
@@ -108,16 +111,15 @@ class Downloader
 
                 break;
             case STREAM_NOTIFY_FILE_SIZE_IS:
-                $this->progressBar->start($bytesMax);
                 $this->bytesMax = $bytesMax;
 
                 break;
             case STREAM_NOTIFY_PROGRESS:
-                $this->progressBar->setProgress($bytesTransferred);
+                $this->updateProgressBar($bytesTransferred);
 
                 break;
             case STREAM_NOTIFY_COMPLETED:
-                $this->progressBar->setProgress($bytesMax);
+                $this->updateProgressBar($bytesMax);
 
                 break;
             case STREAM_NOTIFY_FAILURE:
@@ -141,13 +143,15 @@ class Downloader
      */
     public function run(string $url, string $targetFile)
     {
-        $input           = $this->input;
-        $dryRun          = $input->hasParameterOption('dry-run');
-        $fullName        = basename($targetFile);
-        $fs              = $this->fs;
-        $output          = $this->output;
-        $logger          = $this->logger;
-        $this->connected = false;
+        $input            = $this->input;
+        $dryRun           = $input->hasParameterOption('dry-run');
+        $fullName         = basename($targetFile);
+        $fs               = $this->fs;
+        $output           = $this->output;
+        $logger           = $this->logger;
+        $this->hasStarted = false;
+        $this->connected  = false;
+        $this->bytesMax   = null;
 
         $output->writeln('');
         $fs->mkdir(\dirname($targetFile));
@@ -165,7 +169,7 @@ class Downloader
                 if ($exception instanceof HttpNotFoundException && $this->connected) {
                     throw $exception;
                 } else {
-                    throw new NetworkConnectionException($exception);
+                    throw new NetworkConnectionException($exception->getMessage(), 1, $exception);
                 }
             }
             restore_error_handler();
@@ -180,5 +184,17 @@ class Downloader
         $output->writeln('');
         $this->logger->debug('Download <comment>finished</comment>');
         $output->writeln('');
+    }
+
+    public function updateProgressBar($bytesTransferred)
+    {
+        $progressBar = $this->progressBar;
+        $bytesMax    = $this->bytesMax;
+
+        if (!$this->hasStarted) {
+            $progressBar->start($bytesMax);
+        }
+
+        $progressBar->setProgress($bytesTransferred);
     }
 }

@@ -20,37 +20,43 @@ Installation
 ====
 Choose and download your phar based on your operating system in [here](https://sourceforge.net/projects/monorepo/nightly)
 
+Update
+====
+```sh
+$ php mr.phar selfupdate
+```
+
 Usage
 ====
-Create your json file
+Create your configuration file
 ```json
 // path/to/project
 [
   {
-      "name": "project1",
-      "remote_url": "git@github.com:project1/root",
+      "name": "foo-bar",
+      "remote_url": "git@github.com:foo-bar/root",
       "prefixes": [
            {
-              "key": "git@githusrc/foo",
-              "target": "git@github.com:project1/foo.git"      
+              "key": "src/foo",
+              "target": "git@github.com:foo-bar/foo.git"      
            },
            {
               "key": "src/bar",
-              "target": "git@github.com:project1/bar.git"      
+              "target": "git@github.com:foo-bar/bar.git"      
            }
       ]
   },
   {
-      "name": "project2",
-      "remote_url": "git@github.com:project2/root",
+      "name": "hello-world",
+      "remote_url": "git@github.com:hello-world/root",
       "prefixes": [
           {
               "key": "src/hello",
-              "target": "git@github.com:project2/hello.git"      
+              "target": "git@github.com:hello-world/hello.git"      
           },
           {
               "key": "src/world",
-              "target": "git@github.com:project2/world.git"      
+              "target": "git@github.com:hello-world/world.git"      
           }
       ]
   }
