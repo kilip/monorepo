@@ -56,7 +56,7 @@ script:
 after_success:
 - |-
   if [[ $COVERAGE = yes ]]; then
-      bash <(curl -s https://codecov.io/bash) -s build/coverage/clover -f "*.xml";
+      bash <(curl -s https://codecov.io/bash) -s build/coverage -f "*.xml";
       wget https://scrutinizer-ci.com/ocular.phar;
       php ocular.phar code-coverage:upload --format=php-clover build/coverage/clover.xml;
   fi;
