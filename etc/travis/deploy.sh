@@ -22,7 +22,7 @@ function doExec()
 mkdir -pv ${RELEASE_PATH} | echo "directory ${RELEASE_PATH} exists"
 
 doExec "./bin/monorepo compile --ansi -vvv ${RELEASE_PATH}" 1
-doExec "rsync -r --delete-after --quiet ${RELEASE_PATH} ${SF_USER}@${SF_HOST}:${SF_PATH}" 2
+doExec "rsync -r -v --delete-after --quiet ${RELEASE_PATH} ${SF_USER}@${SF_HOST}:${SF_PATH}" 2
 
 if [[ 1 == $EXIT ]]; then
     MESSAGE="Compile failed!";

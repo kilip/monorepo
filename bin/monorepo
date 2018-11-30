@@ -51,6 +51,7 @@ try {
     $app        = $container->get('monorepo.app');
 
     $factory->compileConfig();
+    $app->setContainer($container);
     exit($app->run($input, $output));
 } catch (\Exception $e) {
     if (defined('app')) {

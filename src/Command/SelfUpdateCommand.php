@@ -23,7 +23,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SelfUpdateCommand extends AbstractCommand
 {
-    const BASE_URL = 'https://sourceforge.net/projects/monorepo/files/%%file%%/download';
+    const BASE_URL = 'https://sourceforge.net/projects/monorepo/files/latest/%%file%%/download';
 
     /**
      * @var string
@@ -68,6 +68,11 @@ class SelfUpdateCommand extends AbstractCommand
     /**
      * @var string
      */
+    private $platform;
+
+    /**
+     * @var string
+     */
     private $tempDir;
 
     /**
@@ -92,7 +97,7 @@ class SelfUpdateCommand extends AbstractCommand
         $this->cacheDir   = $config->getCacheDir();
         $this->fs         = $filesystem;
         $this->logger     = $logger;
-
+        $this->platform   = $config->getUserOS();
         parent::__construct('self-update');
     }
 
@@ -115,8 +120,9 @@ class SelfUpdateCommand extends AbstractCommand
     {
         $tempDir     = $this->tempDir;
         $baseUrl     = static::BASE_URL;
-        $url         = str_replace('%%file%%', 'monorepo.phar.json', $baseUrl);
-        $versionFile = $tempDir.'/update/monorepo.phar.json';
+        $platform    = $this->platform;
+        $url         = str_replace('%%file%%', 'mr-'.$platform.'.phar.json', $baseUrl);
+        $versionFile = sprintf($tempDir.'/update/mr-%s.phar.json', $platform);
         $fs          = $this->fs;
         $logger      = $this->logger;
 
@@ -128,7 +134,7 @@ class SelfUpdateCommand extends AbstractCommand
         $downloader->run($url, $versionFile);
         $contents = file_get_contents($versionFile);
         if ('' === trim($contents)) {
-            throw new \Exception('Can not parse monorepo.phar.json file');
+            throw new \Exception(sprintf('Can not parse mr-%s.phar.json file', $platform));
         }
         $json = json_decode($contents, true);
 
@@ -147,14 +153,15 @@ class SelfUpdateCommand extends AbstractCommand
 
     private function doUpdate(OutputInterface $output)
     {
-        $fs      = $this->fs;
-        $tempDir = $this->tempDir.'/update/'.$this->version;
+        $fs       = $this->fs;
+        $platform = $this->platform;
+        $tempDir  = $this->tempDir.'/update/'.$this->version;
         $fs->copy($this->versionFile, $tempDir.\DIRECTORY_SEPARATOR.'VERSION');
 
-        $targetFile = $tempDir.\DIRECTORY_SEPARATOR.'monorepo.phar';
+        $targetFile = $tempDir.\DIRECTORY_SEPARATOR.'mr.phar';
         if (!is_file($targetFile)) {
             $baseUrl     = static::BASE_URL;
-            $url         = str_replace('%%file%%', 'monorepo.phar', $baseUrl);
+            $url         = str_replace('%%file%%', 'mr-'.$platform.'.phar', $baseUrl);
             $downloader  = $this->downloader;
             $downloader->run($url, $targetFile);
         }
@@ -169,10 +176,10 @@ class SelfUpdateCommand extends AbstractCommand
         $output->writeln($current);
         if (is_file($current)) {
             $override = ['override' => true];
-            $backup   = $cacheDir.'/monorepo_old.phar';
+            $backup   = $cacheDir.'/mr_old.phar';
             $fs->copy($current, $backup, $override);
             $fs->copy($this->pharFile, $current, $override);
-            $output->writeln('Your <comment>monorepo.phar</comment> is updated.');
+            $output->writeln('Your <comment>mr.phar</comment> is updated.');
         }
         //@codeCoverageIgnoreEnd
     }

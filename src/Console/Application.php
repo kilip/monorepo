@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace Monorepo\Console;
 
+use Monorepo\Processor\Filesystem;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class Application extends BaseApplication
 {
@@ -51,13 +53,6 @@ class Application extends BaseApplication
                 'Do not do real change, just show debug output only'
             ),
         ]);
-
-        $className = 'Monorepo\Command\CompileCommand';
-        if (class_exists($className)) {
-            $this->add(new $className());
-        }
-
-        $this->configured = true;
     }
 
     /**
@@ -66,10 +61,21 @@ class Application extends BaseApplication
     public function getLongVersion()
     {
         return implode(' ', [
-            static::VERSION,
-            static::BRANCH_ALIAS_VERSION,
-            static::RELEASE_DATE,
+            '<info>'.static::VERSION.'</info>',
+            '<comment>'.static::BRANCH_ALIAS_VERSION.'</comment>',
+            '<info>'.static::RELEASE_DATE.'</info>',
         ]);
+    }
+
+    public function setContainer(ContainerInterface $container = null)
+    {
+        $className = 'Monorepo\Command\CompileCommand';
+        if (class_exists($className)) {
+            $fs = $container->get(Filesystem::class);
+            $this->add(new $className($fs));
+        }
+
+        $this->configured = true;
     }
 
     protected function configureIO(InputInterface $input, OutputInterface $output)

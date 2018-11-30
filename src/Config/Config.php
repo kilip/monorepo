@@ -29,6 +29,11 @@ class Config
     private $cacheDir;
 
     /**
+     * @var string
+     */
+    private $containerId;
+
+    /**
      * @var EventDispatcher
      */
     private $dispatcher;
@@ -45,10 +50,19 @@ class Config
      */
     private $projects = [];
 
+    /**
+     * @var string
+     */
+    private $rootDir;
+
+    private $userOS;
+
     public function __construct(EventDispatcher $dispatcher, Logger $logger)
     {
         $this->dispatcher = $dispatcher;
         $this->logger     = $logger;
+        $this->rootDir    = realpath(__DIR__.'/../../');
+        $this->userOS     = $this->guessUserOS();
     }
 
     /**
@@ -57,6 +71,14 @@ class Config
     public function getCacheDir(): string
     {
         return $this->cacheDir;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContainerId(): string
+    {
+        return $this->containerId;
     }
 
     public function getMonorepoDir()
@@ -81,6 +103,22 @@ class Config
     public function getProjects(): array
     {
         return $this->projects;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRootDir(): string
+    {
+        return $this->rootDir;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserOS(): string
+    {
+        return $this->userOS;
     }
 
     /**
@@ -136,11 +174,41 @@ class Config
     }
 
     /**
+     * @param string $containerId
+     */
+    public function setContainerId(string $containerId)
+    {
+        $this->containerId = $containerId;
+    }
+
+    /**
      * @param array $projects
      */
     public function setProjects($projects)
     {
         $this->projects = $projects;
+    }
+
+    /**
+     * @param string $rootDir
+     */
+    public function setRootDir(string $rootDir)
+    {
+        $this->rootDir = $rootDir;
+    }
+
+    private function guessUserOS()
+    {
+        $os = PHP_OS;
+
+        switch ($os) {
+            case 'Darwin':
+                return 'darwin';
+            case 'Windows':
+                return 'windows';
+            default:
+                return 'linux';
+        }
     }
 
     /**
@@ -152,9 +220,9 @@ class Config
      */
     private function validate($contents)
     {
-        $schemaFile = __DIR__.'/../../config/schema.json';
+        $schemaFile = $this->getRootDir().'/config/schema.json';
 
-        if (!strpos(__FILE__, 'phar:///')) {
+        if (false === strpos(__FILE__, 'phar')) {
             $schemaFile = 'file://'.$schemaFile;
         }
         $schema     = (object) ['$ref' => $schemaFile];

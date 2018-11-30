@@ -128,9 +128,16 @@ class ApplicationFactoryTest extends TestCase
     {
         $app = new ApplicationFactory();
         $app->boot();
+
         $container = $app->getContainer();
 
+        $cacheDir = realpath(__DIR__.'/../var/cache');
+        $rootDir  = realpath(__DIR__.'/../');
+        $config   = $container->get(Config::class);
+
         $this->assertInstanceOf(Application::class, $container->get('monorepo.app'));
+        $this->assertEquals($cacheDir, $config->getCacheDir());
+        $this->assertEquals($rootDir, $config->getRootDir());
     }
 
     /**
