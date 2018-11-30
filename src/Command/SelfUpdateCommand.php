@@ -123,7 +123,9 @@ class SelfUpdateCommand extends AbstractCommand
             $downloader->run($url, $targetFile);
         }
 
-        $this->createPhar($this->cacheDir, $targetFile);
+        if (is_file($targetFile)) {
+            $this->createPhar($this->cacheDir, $targetFile);
+        }
     }
 
     public function validateVersion()
@@ -135,7 +137,7 @@ class SelfUpdateCommand extends AbstractCommand
         $logger          = $this->logger;
 
         $logger->info('start checking new version');
-        $fs->mkdir(\dirname($versionFile));
+        $fs->mkdir($tempDir.'/update');
 
         if (false == ($json = $this->downloadVersionFile($versionFile))) {
             $this->stable = false;
@@ -152,6 +154,8 @@ class SelfUpdateCommand extends AbstractCommand
         $this->version     = $json['version'];
         $this->branchAlias = $json['branch'];
         $this->date        = $json['date'];
+
+        return $this->getApplication()->getVersion() === $json['version'];
     }
 
     protected function configure()
@@ -173,7 +177,7 @@ class SelfUpdateCommand extends AbstractCommand
     {
         $logger      = $this->logger;
         if (!$this->validateVersion()) {
-            $this->update($output);
+            $this->update();
             $this->getApplication()->get('clear-cache')->run($input, $output);
         } else {
             $logger->info('You already have the latest version.');
