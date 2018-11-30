@@ -153,7 +153,7 @@ class Downloader
         $this->connected  = false;
         $this->bytesMax   = null;
 
-        $output->writeln('');
+        $logger->debug('downloading {0} to {1}', [$url, $targetFile]);
         $fs->mkdir(\dirname($targetFile));
         $this->progressBar->setFormat("Download <comment>$fullName</comment>: <comment>%percent:3s%%</comment> <info>%estimated:-6s%</info>");
 

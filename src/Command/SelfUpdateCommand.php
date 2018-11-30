@@ -132,12 +132,11 @@ class SelfUpdateCommand extends AbstractCommand
     {
         $fs              = $this->fs;
         $tempDir         = $this->tempDir;
-        $pharVersionName = sprintf('mr-%s.phar.json', $this->config->getUserOS());
-        $versionFile     = sprintf($tempDir.'/update/%s', $pharVersionName);
+        $versionFile     = $tempDir.'/update/mr.phar.json';
         $logger          = $this->logger;
 
         $logger->info('start checking new version');
-        $fs->mkdir($tempDir.'/update');
+        $fs->mkdir(\dirname($versionFile));
 
         if (false == ($json = $this->downloadVersionFile($versionFile))) {
             $this->stable = false;

@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Logger extends AbstractLogger
 {
     const CMD        = 'cmd';
-    const ERROR      = 'error';
+    const ERROR      = 'info';
     const INFO       = 'info';
     const OUT        = 'out';
 
