@@ -18,6 +18,7 @@ use Monorepo\Command\SelfUpdateCommand;
 use Monorepo\Config\Config;
 use Monorepo\Console\Application;
 use Monorepo\Console\Logger;
+use Monorepo\Exception\HttpNotFoundException;
 use Monorepo\Processor\Downloader;
 use Monorepo\Processor\Filesystem;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -98,12 +99,12 @@ JSON;
 
         file_put_contents($jsonFile = sys_get_temp_dir().'/test.json', $json, LOCK_EX);
 
-        $config->expects($this->once())
+        $config->expects($this->any())
             ->method('getVersionUrl')
             ->willReturn('some-url')
         ;
 
-        $downloader->expects($this->once())
+        $downloader->expects($this->any())
             ->method('run')
             ->with('some-url', $jsonFile)
             ->willReturn($jsonFile)
@@ -112,6 +113,26 @@ JSON;
         $return = $stub->downloadVersionFile($jsonFile, 'some-url');
 
         $this->assertContains('some-version', $return);
+        $this->assertContains('some-branch', $return);
+        $this->assertContains('some-date', $return);
+
+        $downloader->expects($this->any())
+            ->method('run')
+            ->with('some-url', 'exception')
+            ->willThrowException(new HttpNotFoundException('Not Found'));
+
+        $return = $stub->downloadVersionFile('exception', 'some-url');
+        $this->assertFalse($return);
+
+        $downloader->expects($this->any())
+            ->method('run')
+            ->with('some-url', 'exception-error')
+            ->willThrowException(new \RuntimeException('Some Exception'));
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Some Exception');
+
+        $stub->downloadVersionFile('exception-error', 'some-url');
     }
 
     public function testExecute()
