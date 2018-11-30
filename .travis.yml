@@ -9,7 +9,6 @@ addons:
 matrix:
   include:
   - php: '7.0'
-    env: DEPLOY=yes
   - php: '7.1'
   - php: '7.2'
   - php: '7.3'
@@ -35,14 +34,13 @@ before_deploy:
 - chmod 600 deploy_rsa
 - ssh-add deploy_rsa
 
-# TODO: deploy need to change into branch master only
 deploy:
-  provider: script
+- provider: script
   skip_cleanup: true
   script: ./etc/travis/deploy.sh
   on:
-    branch: master|wip
-    condition: $DEPLOY="yes"
+    all_branches: true
+    condition: $TRAVIS_BRANCH =~ ^master|wip$ && $DEPLOY="yes"
 
 script:
 - |
