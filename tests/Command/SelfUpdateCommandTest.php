@@ -60,6 +60,8 @@ class SelfUpdateCommandTest extends TestCase
      */
     private $input;
 
+    private $json;
+
     /**
      * @var MockObject
      */
@@ -78,16 +80,38 @@ class SelfUpdateCommandTest extends TestCase
         $this->logger     = $this->createMock(Logger::class);
         $this->input      = $this->createMock(InputInterface::class);
         $this->output     = $this->createMock(OutputInterface::class);
+        $this->json       = <<<'JSON'
+{
+    "version": "some-version",
+    "branch": "some-branch",
+    "date": "some-date"
+}
+JSON;
     }
 
     public function testDownloadVersionFile()
     {
         $downloader = $this->downloader;
+        $config     = $this->config;
         $stub       = $this->getStub(['downloadVersionFile'])->getMock();
+        $json       = $this->json;
+
+        file_put_contents($jsonFile = sys_get_temp_dir().'/test.json', $json, LOCK_EX);
+
+        $config->expects($this->once())
+            ->method('getVersionUrl')
+            ->willReturn('some-url')
+        ;
 
         $downloader->expects($this->once())
             ->method('run')
-            ->with('');
+            ->with('some-url', $jsonFile)
+            ->willReturn($jsonFile)
+        ;
+
+        $return = $stub->downloadVersionFile($jsonFile, 'some-url');
+
+        $this->assertContains('some-version', $return);
     }
 
     public function testExecute()
@@ -128,23 +152,13 @@ class SelfUpdateCommandTest extends TestCase
         $stub->run($this->input, $this->output);
     }
 
-    public function testUpdate()
-    {
-    }
-
     public function testValidateVersion()
     {
         $logger = $this->logger;
 
         $stub = $this->getStub(['validateVersion'])->getMock();
 
-        $json = <<<'JSON'
-{
-    "version": "some-version",
-    "branch": "some-branch",
-    "date": "some-date"
-}
-JSON;
+        $json = $this->json;
 
         $json = json_decode($json, true);
         $logger->expects($this->exactly(6))
