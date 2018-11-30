@@ -71,8 +71,9 @@ class Application extends BaseApplication
     {
         $className = 'Monorepo\Command\CompileCommand';
         if (class_exists($className)) {
-            $fs = $container->get(Filesystem::class);
-            $this->add(new $className($fs));
+            $fs     = $container->get(Filesystem::class);
+            $logger = $container->get(Logger::class);
+            $this->add(new $className($logger, $fs));
         }
 
         $this->configured = true;

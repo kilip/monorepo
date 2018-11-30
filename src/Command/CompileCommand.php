@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Monorepo\Command;
 
+use Monorepo\Console\Logger;
 use Monorepo\Processor\Filesystem;
 use Seld\PharUtils\Timestamps;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -51,6 +52,11 @@ class CompileCommand extends AbstractCommand
     private $fs;
 
     /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * @var OutputInterface
      */
     private $output;
@@ -65,9 +71,10 @@ class CompileCommand extends AbstractCommand
      */
     private $versionDate;
 
-    public function __construct(Filesystem $fs)
+    public function __construct(Logger $logger, Filesystem $fs)
     {
-        $this->fs = $fs;
+        $this->fs     = $fs;
+        $this->logger = $logger;
         parent::__construct();
     }
 
@@ -120,8 +127,9 @@ class CompileCommand extends AbstractCommand
         chdir(\dirname(__DIR__.'/../../../'));
 
         $this->baseDir = getcwd();
-        $this->output  = $output;
         $fs            = $this->fs;
+        $logger        = $this->logger;
+        $this->output  = $output;
 
         // start compiling process
         $targetDir = realpath($input->getArgument('target'));
@@ -133,7 +141,8 @@ class CompileCommand extends AbstractCommand
         chdir($cwd);
         $fs->remove($target);
         $fs->remove($targetDir.'/vendor');
-        $output->writeln("Completed! Phar files generated in <comment>$targetDir</comment>");
+
+        $logger->info('Completed! Phar files generated in {0}', [$targetDir]);
     }
 
     /**
@@ -172,14 +181,17 @@ class CompileCommand extends AbstractCommand
             return strcmp(strtr($a->getRealPath(), '\\', '/'), strtr($b->getRealPath(), '\\', '/'));
         };
 
-        $this->output->writeln("Start registering files in <comment>{$this->baseDir}</comment>");
+        $baseDir = $this->baseDir;
+        $logger  = $this->logger;
+
+        $logger->info('Start registering files in {0}', [$baseDir]);
         $finder = new Finder();
         $finder->files()
             ->ignoreVCS(true)
             ->ignoreDotFiles(false)
             ->notName('CompileCommand.php')
-            ->in($this->baseDir.'/config')
-            ->in($this->baseDir.'/src')
+            ->in($baseDir.'/config')
+            ->in($baseDir.'/src')
             ->sort($finderSort)
         ;
         $this->registerFiles($finder);
@@ -195,28 +207,27 @@ class CompileCommand extends AbstractCommand
             ->exclude('demo')
             ->exclude('docs')
             ->exclude('doc')
-            ->in($this->baseDir.'/vendor/bin')
-            ->in($this->baseDir.'/vendor/composer')
-            ->in($this->baseDir.'/vendor/gitonomy')
-            ->in($this->baseDir.'/vendor/justinrainbow')
-            ->in($this->baseDir.'/vendor/psr')
-            ->in($this->baseDir.'/vendor/symfony')
-            ->in($this->baseDir.'/vendor/zendframework')
+            ->in($baseDir.'/vendor/bin')
+            ->in($baseDir.'/vendor/composer')
+            ->in($baseDir.'/vendor/gitonomy')
+            ->in($baseDir.'/vendor/justinrainbow')
+            ->in($baseDir.'/vendor/psr')
+            ->in($baseDir.'/vendor/symfony')
+            ->in($baseDir.'/vendor/zendframework')
             ->sort($finderSort)
         ;
         $this->registerFiles($finder);
 
         $this->registerFiles($finder);
-        $this->files[] = new \SplFileInfo($this->baseDir.'/vendor/autoload.php');
+        $this->files[] = new \SplFileInfo($baseDir.'/vendor/autoload.php');
 
         $phar = new \Phar($pharFile, 0, 'mr.phar');
         $phar->setSignatureAlgorithm(\Phar::SHA1);
         $phar->startBuffering();
 
         $count = \count($this->files);
-        $this->output->writeln("Start processing <comment>{$count} files</comment>");
+        $logger->info('Start processing {0} files', [$count]);
         $this->processFiles($phar);
-        $this->output->writeln('');
 
         $this->addMonorepoBin($phar);
 
@@ -234,6 +245,7 @@ class CompileCommand extends AbstractCommand
         $platformFile = sprintf($dir.'/mr-%s.phar', $platform);
         $pharBin      = 'vendor/toni/splitsh/bin';
         $pharBinSrc   = sprintf(__DIR__.'/../../vendor/toni/splitsh/bin/%s.amd64/splitsh-lite', $platform);
+        $logger       = $this->logger;
 
         @mkdir($pharBin, 0777, true);
 
@@ -253,6 +265,8 @@ class CompileCommand extends AbstractCommand
         $util->updateTimestamps($this->versionDate);
         $util->save($platformFile, \Phar::SHA1);
         $this->generateVersionFile($dir, $platform);
+
+        $logger->info('compiled {0} to {1}', [$platform, $platformFile]);
     }
 
     private function generateVersionFile($targetDir, $platform)
@@ -340,6 +354,7 @@ EOF;
     private function processFiles($phar)
     {
         $files       = $this->files;
+        $this->output->writeln('');
         $progressBar = new ProgressBar($this->output, \count($files));
         $progressBar->setFormat('Compiling <comment>%percent%%</comment>');
         $progressBar->start();
@@ -349,6 +364,7 @@ EOF;
         }
 
         $progressBar->finish();
+        $this->output->writeln("\n");
     }
 
     /**

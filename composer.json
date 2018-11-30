@@ -19,20 +19,18 @@
         "gitonomy/gitlib": "^1.0",
         "justinrainbow/json-schema": "^5.2",
         "psr/log": "^1.1",
-        "symfony/config": "^3.4 | ^4.1",
-        "symfony/console": "^3.4 | ^4.1",
-        "symfony/dependency-injection": "^3.4 | ^4.1",
-        "symfony/dotenv": "^3.4 | ^4.1",
-        "symfony/event-dispatcher": "^3.4 | ^4.1",
-        "symfony/finder": "^3.4 | ^4.1",
-        "symfony/process": "^3.4 | ^4.1",
-        "symfony/yaml": "^3.4 | ^4.1",
+        "seld/phar-utils": "^1.0",
+        "symfony/config": "^3.4",
+        "symfony/console": "^3.4",
+        "symfony/dependency-injection": "^3.4",
+        "symfony/dotenv": "^3.4",
+        "symfony/event-dispatcher": "^3.4",
+        "symfony/finder": "^3.4",
+        "symfony/filesystem": "^3.4",
+        "symfony/process": "^3.4",
+        "symfony/yaml": "^3.4",
         "toni/splitsh": "^1.0",
         "zendframework/zend-json": "^3.1"
-    },
-    "require-dev": {
-        "seld/phar-utils": "^1.0",
-        "symfony/filesystem": "^3.4 | ^4.1"
     },
     "autoload": {
         "psr-4": {
