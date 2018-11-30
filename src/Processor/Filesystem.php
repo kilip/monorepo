@@ -111,7 +111,7 @@ class Filesystem
                 getcwd()       => '$CWD',
                 getenv('HOME') => '$HOME',
             ]);
-            $output->writeln($flag.sprintf($format, $subject), OutputInterface::VERBOSITY_VERY_VERBOSE);
+            $output->writeln($flag.sprintf($format, $subject), OutputInterface::VERBOSITY_NORMAL);
         }
     }
 }

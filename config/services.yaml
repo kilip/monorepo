@@ -32,6 +32,8 @@ services:
         class: Monorepo\Processor\Runner
     monorepo.filesystem:
         class: Monorepo\Processor\Filesystem
+    monorepo.style:
+        class: Symfony\Component\Console\Style\SymfonyStyle
 
     # event subscribers
     Monorepo\Processor\:
