@@ -4,7 +4,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../bash/common.lib.sh"
 
 BUILD_TYPE="nightly"
 BUILD_DIR="${TRAVIS_BUILD_DIR:-$PWD}"
-SF_PATH=/home/frs/project/monorepo/${BUILD_TYPE}
+SF_PATH=/home/frs/project/monorepo/
 EXIT=0
 MESSAGE="Deploy success!"
 RELEASE_PATH=${BUILD_DIR}/build/${BUILD_TYPE}
